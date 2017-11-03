@@ -4,7 +4,7 @@ Don't forget to check the resources in the [labs](../labs) repository.
 
 Each homework assignment is in a separate folder named accordingly.
 
-* homework 1 [hw01-interpreter/README.md] <- click here
+* homework 1 [README](./hw01-interpreter/README.md) <- click here
 
 ## submitting homework
 
