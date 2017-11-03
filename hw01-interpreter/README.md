@@ -22,7 +22,7 @@ We have two `terminal` elements which I will not describe any further as it shou
         |  <if>
         |  <lambda>
         |  <apply>
-        |  <var-decl>
+        |  <val-decl>
 
 <const> ::= integer
 
@@ -54,7 +54,7 @@ We have two `terminal` elements which I will not describe any further as it shou
 //
 // here, "string" is the variable name, and the immediately next <expr> represents its value
 // the second <expr> is the "body" of the program where the defined variables ought to be available
-<var-decl> ::= (string <expr>)+ <expr>
+<val-decl> ::= (string <expr>)+ <expr>
 
 //defining an anonymous function with one or more parameters, and a function body
 <lambda> ::= (string)* <expr>
@@ -77,8 +77,8 @@ Define this AST (roughly) as it is described in the above BNF grammar, and then 
   * should fail at runtime if you're comparing something else than numbers. We are, after all, defining a strongly typed dynamic language.
 * `<if>`
   * we model booleans like in C, with integers. But the `if` is similar to the one in Haskell, where you are _required_ to define both branches, and it is an expression that always returns a value
-* `<var-decl>`
-  * if you define two variables in the same `<var-decl>` expression, the value of the first one has to be available for the definition of the second one. So for something like: `let x = 42; y = x * 10 in ...`;
+* `<val-decl>`
+  * if you define two variables in the same `<val-decl>` expression, the value of the first one has to be available for the definition of the second one. So for something like: `let x = 42; y = x * 10 in ...`;
   * recursive definitions should also be supported. If you define a variable with a `<lambda>`, that variable should be useable inside the definition of said lambda.
 * `<val>`
   * semantically this boils down to "using" the value of a variable
@@ -98,7 +98,7 @@ I will detail this section a bit later. But throughout the semester you can impl
 
 * do not use mutable state in your implementation. Therefore uses of `var`, and any collection in the `scala.collection.mutable` are banned. Homework will be heavily penalized for using mutable state. If you ever use mutable state, you will have to be prepared to defend your choice through the most relentless scrutiny.
 * abide by the semantics described in the previous sections. You are allowed to expand the language — like introducing "boolean" values instead of using integers for conditionals, but you are not allowed to turn `if` from a Haskell-like `if`, into a C-like `if`.
-* To get a passing grade, you have to support variable declaration (`<var-decl>`) and dereferencing (`<val>`); or `<apply>`. Without at least one of these features, your language and implementation are no more complex that the `JsonPrettyPrinter` we defined in the labs.
+* To get a passing grade, you have to support variable declaration (`<val-decl>`) and dereferencing (`<val>`); or `<apply>`. Without at least one of these features, your language and implementation are no more complex that the `JsonPrettyPrinter` we defined in the labs.
 * programs that do not compile are not accepted — therefore make sure you can do a `sbt compile` in your terminal, for your project.
 * a reasonable smoke test for all the features in the language is expressing the computation of the `nth` Fibonacci number in  your AST, and successfully running it through your interpreter. In most cases, this single test should be enough to convince me that all your features work. But writing code without tests for simpler cases is an invitation for you to fail implementing it, so write fewer tests at your own risk :)
 
