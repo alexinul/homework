@@ -106,4 +106,4 @@ I will detail this section a bit later. But throughout the semester you can impl
 
 * [labs](../labs) on everything Scala. The `JsonPrettyPrinter` serves as a basic starting point for everything non-variable, non-function related.
 * basically google "implement a lambda calculus intepreter in `$YourLanguageOfChoice`" to get the basic gist of it in something you understand
-* `Essentials of Programming Languages` is a great book that explains everything in excruciating details — implementations are in a LISP-like dialect
+* [`Essentials of Programming Languages`](https://karczmarczuk.users.greyc.fr/TEACH/Doc/EssProgLan.pdf) — Daniel P. Friedman and Mitchell Wand — is a great book that explains everything in excruciating details — implementations are in a LISP-like dialect
