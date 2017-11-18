@@ -17,7 +17,7 @@ final case class If(condition: Expression, ifThen: Expression, elseIf: Expressio
 
 final case class  Lambda(arguments: List[String], body: Expression) extends Expression
 
-final case class Apply(expression: Lambda, optExpression: Expression*) extends Expression
+final case class Apply(expression: Expression, parameters: Map[String, Expression]) extends Expression
 
 final case class ValDecl(value: Map[String, Expression], body: Expression) extends Expression
 
@@ -54,7 +54,7 @@ object Expression {
 
   def apply(arguments: List[String], body: Expression): Lambda = new Lambda(arguments, body)
 
-  def apply(expression: Lambda, optExpression: Expression*): Apply = new Apply(expression, optExpression: _*)
+  def apply(expression: Expression, parameters: Map[String, Expression]): Apply = new Apply(expression, parameters)
 
   def apply(value: Map[String, Expression], body: Expression): ValDecl = new ValDecl(value, body)
 

@@ -1,5 +1,5 @@
 object Source extends App {
-  test2
+  test3
 
   private def test2 = {
     val xAddy = BinaryOperation(Add, Val("x"), Val("y"))
@@ -7,6 +7,18 @@ object Source extends App {
 
     val xAddy2 = BinaryOperation(Mul, Val("x"), Val("y"))
     Console.println(interpreter.apply(xAddy2, Map("x" -> Const(2), "y" -> BinaryOperation(Add, Const(3), Const(2)))))
+
+  }
+
+  private def test3 = {
+    val fact5 = ValDecl(
+      Map("fact" -> Lambda(List("n"), {
+        If(Eq(Val("n"), Const(0)),
+          Const(1),
+          BinaryOperation(Mul, Val("n"), Apply(Val("fact"), Map("n" -> BinaryOperation(Sub, Val("n"), Const(1))))))
+      })), Apply(Val("fact"), Map("n" -> Const(5)))
+    )
+    Console.println(interpreter.apply(fact5))
   }
 
   private def test1 = {
