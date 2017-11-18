@@ -4,7 +4,7 @@ object interpreter {
       case terminal@Const(_) => Left(terminal)
       case terminal@Val(_) => Left(terminal)
       case Eq(lhs, rhs) => evaluateEq(lhs, rhs)
-      case BinaryOperation(op, lhs, rhs) => evaluateBinaryOperation(op, lhs, rhs)
+      case BinaryOperation(op, lhs, rhs) => evaluateBinaryOperation(op, lhs, rhs, environment)
       case If(condition, ifThen, elseIf)
       => interpreter.apply(condition) match {
         case Left(Const(1)) => interpreter.apply(ifThen)
@@ -43,7 +43,7 @@ object interpreter {
     }
   }
 
-  private def evaluateBinaryOperation(op: Operation, lhs: Expression, rhs: Expression) = {
+  private def evaluateBinaryOperation(op: Operation, lhs: Expression, rhs: Expression, environment: Map[String, Expression]) = {
     interpreter.apply(lhs) match {
       case Left(value) =>
         value match {
@@ -52,11 +52,36 @@ object interpreter {
               case Left(value) =>
                 value match {
                   case Const(int2) => Left(op.apply(int1, int2))
-                  case Val(_) => throw new RuntimeException("Cannot do binary operations between strings")
+                  case Val(id) => evaluate(id, environment) match {
+                    case Left(value) => value match {
+                      case Const(int2) => Left(op.apply(int1, int2))
+                      case Val(_) => throw new RuntimeException("Cannot do binary operations between strings")
+                    }
+                    case Right(_) => throw new RuntimeException("Cannot do binary operations between lambdas")
+                  }
                 }
-              case Right(value) => throw new RuntimeException("Cannot do binary operations between lambdas")
+              case Right(_) => throw new RuntimeException("Cannot do binary operations between lambdas")
             }
-          case Val(_) => throw new RuntimeException("Cannot do binary operations between strings")
+          case Val(id) => evaluate(id, environment) match {
+            case Left(value) => value match {
+              case Const(int1) => interpreter.apply(rhs) match {
+                case Left(value) =>
+                  value match {
+                    case Const(int2) => Left(op.apply(int1, int2))
+                    case Val(id) => evaluate(id, environment) match {
+                      case Left(value) => value match {
+                        case Const(int2) => Left(op.apply(int1, int2))
+                        case Val(_) => throw new RuntimeException("Cannot do binary operations between strings")
+                      }
+                      case Right(_) => throw new RuntimeException("Cannot do binary operations between lambdas")
+                    }
+                  }
+                case Right(_) => throw new RuntimeException("Cannot do binary operations between lambdas")
+              }
+              case Val(value) => throw new RuntimeException("Cannot do binary operations between strings")
+            }
+            case Right(value) => throw new RuntimeException("Cannot do binary operations between lambdas")
+          }
         }
       case Right(_) => throw new RuntimeException("Cannot do binary operations between lambdas")
     }

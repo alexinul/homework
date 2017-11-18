@@ -54,7 +54,7 @@ object Expression {
 
   def apply(arguments: List[String], body: Expression): Lambda = new Lambda(arguments, body)
 
-  def apply(expression: Expression, optExpression: Expression*): Apply = new Apply(expression, optExpression: _*)
+  def apply(expression: Lambda, optExpression: Expression*): Apply = new Apply(expression, optExpression: _*)
 
   def apply(value: Map[String, Expression], body: Expression): ValDecl = new ValDecl(value, body)
 
