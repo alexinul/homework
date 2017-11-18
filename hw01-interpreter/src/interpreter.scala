@@ -1,5 +1,5 @@
 object interpreter {
-  def apply(program: Expression): Either[Value, Lambda] =
+  def apply(program: Expression, environment: Map[String, Expression] = Map()): Either[Value, Lambda] =
     program match {
       case terminal@Const(_) => Left(terminal)
       case terminal@Val(_) => Left(terminal)
@@ -11,13 +11,19 @@ object interpreter {
         case _ => interpreter.apply(elseIf)
       }
       case Lambda(arguments, body)
-      => ???
-      case Apply(expression, optExpression)
+      => Right(Lambda(arguments, body))
+      case Apply(lambda, optExpression)
       => ???
       case ValDecl(value, body)
-      =>
-        ???
+      => interpreter.apply(body, environment ++ value)
     }
+
+  private def evaluate(id: String, environment: Map[String, Expression]): Either[Value, Expression] = {
+    environment.get(id) match {
+      case Some(value) => interpreter.apply(value)
+      case None => throw new RuntimeException("The ID is not found")
+    }
+  }
 
   private def evaluateEq(lhs: Expression, rhs: Expression) = {
     interpreter.apply(lhs) match {

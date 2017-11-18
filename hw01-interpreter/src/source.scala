@@ -15,7 +15,7 @@ object Source extends App {
 
   try {
     Console.println(addA3.toString + interpreter.apply(addA3))
-  }catch {
+  } catch {
     case e: Exception => Console.println(e)
   }
 

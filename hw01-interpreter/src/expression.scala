@@ -17,7 +17,7 @@ final case class If(condition: Expression, ifThen: Expression, elseIf: Expressio
 
 final case class  Lambda(arguments: List[String], body: Expression) extends Expression
 
-final case class Apply(expression: Expression, optExpression: Expression*) extends Expression
+final case class Apply(expression: Lambda, optExpression: Expression*) extends Expression
 
 final case class ValDecl(value: Map[String, Expression], body: Expression) extends Expression
 
