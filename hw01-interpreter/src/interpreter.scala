@@ -1,3 +1,5 @@
+//really ugly class, the pattern matching must be improved
+
 object interpreter {
 
   def apply(program: Expression, environment: Map[String, Expression] = Map()): Either[Value, Lambda] =
