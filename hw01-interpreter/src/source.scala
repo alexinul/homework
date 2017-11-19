@@ -5,7 +5,6 @@ object Source extends App {
   factorialTest
   fibonacciTest
 
-
   private def fibonacciTest = {
     val fib = ValDecl(
       Map("fib" -> Lambda(List("n"), {
@@ -69,7 +68,6 @@ object Source extends App {
       case e: Exception => Console.println(e)
     }
   }
-
 
   private def lambdaTest = {
     val lambdaBO = Lambda(List("n"), BinaryOperation(Add, Val("n"), Const(2)))
