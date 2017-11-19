@@ -21,7 +21,7 @@ object interpreter {
             case Val(id) => evaluate(id, environment) match {
               case Left(_) => throw new RuntimeException("Cannot invoke Val")
               case Right(Lambda(_, body)) => interpreter.apply(body, environment ++ evaluateParameters(parameters, environment))
-              case _ => throw new RuntimeException("Something unexpected happened")
+              case _ => throw new RuntimeException("Error during function invocation")
             }
           }
           case Right(Lambda(_, body)) => interpreter.apply(body, environment ++ evaluateParameters(parameters, environment))
@@ -35,7 +35,7 @@ object interpreter {
       case Some(value) => value match {
         case terminal@Const(_) => Left(terminal)
         case terminal@Lambda(_, _) => Right(terminal)
-        case _ => throw new RuntimeException("Not going to get here")
+        case _ => throw new RuntimeException("Error during evaluation")
       }
       case None => Left(Val(id.toString))
     }
