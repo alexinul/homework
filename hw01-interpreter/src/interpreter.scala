@@ -58,6 +58,7 @@ object interpreter {
           case Val(id) => evaluate(id, environment) match {
             case Left(value) => value match {
               case terminal@Const(_) => Left(terminal)
+              case _ => throw new RuntimeException("An error occurred during binary operation evaluation")
             }
             case Right(exp) => interpreter.apply(exp, environment)
           }
