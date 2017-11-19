@@ -1,7 +1,9 @@
 object Source extends App {
-  test1
-  test2
-  test3
+//  test1
+//  test2
+//  factorialTest
+  fibonacciTest
+
 
   private def test2 = {
     val xAddy = BinaryOperation(Add, Val("x"), Val("y"))
@@ -12,7 +14,20 @@ object Source extends App {
 
   }
 
-  private def test3 = {
+  private def fibonacciTest = {
+    val fib = ValDecl(
+      Map("fib" -> Lambda(List("n"), {
+        If(Eq(Val("n"), Const(1)),
+          Const(1),
+          BinaryOperation(Add,
+            Apply(Val("fib"), Map("n" -> BinaryOperation(Sub, Val("n"), Const(1)))),
+            Apply(Val("fib"), Map("n" -> BinaryOperation(Sub, Val("n"), Const(2))))))
+      })), Apply(Val("fib"), Map("n" -> Const(2)))
+    )
+    Console.println(interpreter.apply(fib))
+  }
+
+  private def factorialTest = {
     val fact5 = ValDecl(
       Map("fact" -> Lambda(List("n"), {
         If(Eq(Val("n"), Const(0)),
