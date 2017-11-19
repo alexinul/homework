@@ -1,4 +1,6 @@
 object Source extends App {
+  test1
+  test2
   test3
 
   private def test2 = {
