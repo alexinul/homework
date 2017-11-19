@@ -1,5 +1,3 @@
-import interpreter.evaluate
-
 object interpreter {
 
   def apply(program: Expression, environment: Map[String, Expression] = Map()): Either[Value, Lambda] =
