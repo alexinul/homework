@@ -31,20 +31,12 @@ object interpreter {
   }
 
   private def evaluateEq(lhs: Expression, rhs: Expression, environment: Map[String, Expression]) = {
-    interpreter.apply(lhs, environment) match {
-      case Left(left) =>
-        left match {
-          case (Const(_) | Val(_)) =>
-            interpreter.apply(rhs, environment) match {
-              case Left(right) =>
-                right match {
-                  case (Const(_) | Val(_)) =>
-                    Left(Const(if (evaluate(left, environment).merge.toString == evaluate(right, environment).merge.toString) 1 else 0))
-                }
-              case Right(_) => throw new RuntimeException("Cannot test equality between lambdas")
-            }
-        }
-      case Right(_) => throw new RuntimeException("Cannot test equality between lambdas")
+    val x = evaluateBOPart(lhs, environment)
+    val y = evaluateBOPart(rhs, environment)
+
+    (x, y) match {
+      case (Left(Const(l)), Left(Const(r))) => Left(Const(if (l == r) 1 else 0))
+      case _ => throw new RuntimeException("An error occurred during equality check evaluation")
     }
   }
 
