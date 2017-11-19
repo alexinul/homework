@@ -1,9 +1,9 @@
 object Source extends App {
-  //  simpleOperationsTest
-  //    lambdaTest
+  simpleOperationsTest
+  lambdaTest
   valDeclTest
-  //    factorialTest
-  //    fibonacciTest
+  factorialTest
+  fibonacciTest
 
 
   private def fibonacciTest = {
@@ -82,8 +82,8 @@ object Source extends App {
   }
 
   private def valDeclTest = {
-//    val valDecl = ValDecl(Map("x" -> BinaryOperation(Add, Const(3), Const(4))), BinaryOperation(Add, Const(2), Val("x")))
-//    Console.println(interpreter.apply(valDecl))
+    val valDecl = ValDecl(Map("x" -> BinaryOperation(Add, Const(3), Const(4))), BinaryOperation(Add, Const(2), Val("x")))
+    Console.println(interpreter.apply(valDecl))
 
     val valDecl2 = ValDecl(Map(
       "x" -> BinaryOperation(Add, Const(3), Const(4)),

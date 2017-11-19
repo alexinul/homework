@@ -58,7 +58,6 @@ object interpreter {
           case Val(id) => evaluate(id, environment) match {
             case Left(value) => value match {
               case terminal@Const(_) => Left(terminal)
-              case Val(_) => throw new RuntimeException("Cannot do binary operations between strings")
             }
             case Right(exp) => interpreter.apply(exp, environment)
           }
@@ -73,7 +72,7 @@ object interpreter {
         case terminal@Const(_) => Left(terminal)
         case nonTerminal@_ => Right(nonTerminal)
       }
-      case None => Left(Val(id.toString))
+      case None => throw new RuntimeException("No such element has been defined")
     }
   }
 
