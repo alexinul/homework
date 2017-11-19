@@ -15,7 +15,7 @@ final case class Eq(lhs: Expression, rhs: Expression) extends Expression
 
 final case class If(condition: Expression, ifThen: Expression, elseIf: Expression) extends Expression
 
-final case class  Lambda(arguments: List[String], body: Expression) extends Expression
+final case class Lambda(arguments: List[String], body: Expression) extends Expression
 
 final case class Apply(expression: Expression, parameters: Map[String, Expression]) extends Expression
 
@@ -49,6 +49,8 @@ object Expression {
   def apply(i: Int): Const = Const(i)
 
   def apply(s: String): Val = Val(s)
+
+  def apply(l: Expression, r: Expression): Eq = new Eq(l, r)
 
   def apply(i: Expression, t: Expression, e: Expression): If = If(i, t, e)
 

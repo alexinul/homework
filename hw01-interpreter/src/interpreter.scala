@@ -6,14 +6,10 @@ object interpreter {
     program match {
       case terminal@Const(_) => Left(terminal)
       case terminal@Val(_) => Left(terminal)
+      case Lambda(arguments, body) => Right(Lambda(arguments, body))
       case Eq(lhs, rhs) => evaluateEq(lhs, rhs, environment)
       case BinaryOperation(op, lhs, rhs) => evaluateBinaryOperation(op, lhs, rhs, environment)
-      case If(condition, ifThen, elseIf) =>
-        interpreter.apply(condition, environment) match {
-          case Left(Const(1)) => interpreter.apply(ifThen, environment)
-          case _ => interpreter.apply(elseIf, environment)
-        }
-      case Lambda(arguments, body) => Right(Lambda(arguments, body))
+      case If(condition, ifThen, elseIf) => evaluateIf(environment, condition, ifThen, elseIf)
       case Apply(expression, parameters) =>
         interpreter.apply(expression, environment) match {
           case Left(value) => value match {
@@ -26,17 +22,13 @@ object interpreter {
           }
           case Right(Lambda(_, body)) => interpreter.apply(body, environment ++ evaluateParameters(parameters, environment))
         }
-      case ValDecl(value, body)
-      => interpreter.apply(body, environment ++ value)
+      case ValDecl(value, body) => interpreter.apply(body, environment ++ value)
     }
 
-  private def evaluate(id: Any, environment: Map[String, Expression]): Either[Value, Expression] = {
-    environment.get(id.toString) match {
-      case Some(value) => value match {
-        case terminal@Const(_) => Left(terminal)
-        case nonTerminal@_ => Right(nonTerminal)
-      }
-      case None => Left(Val(id.toString))
+  private def evaluateIf(environment: Map[String, Expression], condition: Expression, ifThen: Expression, elseIf: Expression) = {
+    interpreter.apply(condition, environment) match {
+      case Left(Const(1)) => evaluateBOPart(ifThen, environment)
+      case _ => evaluateBOPart(elseIf, environment)
     }
   }
 
@@ -82,6 +74,16 @@ object interpreter {
           }
         }
       case Right(_) => throw new RuntimeException("Cannot do binary operations between lambdas")
+    }
+  }
+
+  private def evaluate(id: Any, environment: Map[String, Expression]): Either[Value, Expression] = {
+    environment.get(id.toString) match {
+      case Some(value) => value match {
+        case terminal@Const(_) => Left(terminal)
+        case nonTerminal@_ => Right(nonTerminal)
+      }
+      case None => Left(Val(id.toString))
     }
   }
 

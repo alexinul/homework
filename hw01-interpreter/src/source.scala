@@ -1,7 +1,9 @@
 object Source extends App {
-  test2
-  //  factorialTest
-  //  fibonacciTest
+  simpleOperationsTest
+  lambdaTest
+  valDeclTest
+  factorialTest
+  fibonacciTest
 
 
   private def fibonacciTest = {
@@ -30,7 +32,7 @@ object Source extends App {
     Console.println(interpreter.apply(fact5))
   }
 
-  private def simpleOperations = {
+  private def simpleOperationsTest = {
     val add12 = BinaryOperation(Sub, BinaryOperation(Add, Const(3), Const(4)), Const(2))
     val addA3 = BinaryOperation(Add, Val("A"), Const(1))
     val eq55 = Eq(add12, Const(5))
@@ -42,9 +44,9 @@ object Source extends App {
     val xAddy2 = BinaryOperation(Mul, Val("x"), Val("y"))
     val xAddy = BinaryOperation(Add, Val("x"), Val("y"))
 
-    Console.println(add12.toString + interpreter.apply(add12))
+    Console.println(add12.toString + "|" + interpreter.apply(add12))
     try {
-      Console.println(addA3.toString + interpreter.apply(addA3))
+      Console.println(addA3.toString + "|" + interpreter.apply(addA3))
     } catch {
       case e: Exception => Console.println(e)
     }
@@ -59,8 +61,24 @@ object Source extends App {
   }
 
 
-  private def test2 = {
-    val lambda = Lambda(List("n"), BinaryOperation(Add, Val("n"), Const(2)))
-    Console.println(interpreter.apply(Apply(lambda, Map("n" -> BinaryOperation(Mul, Val("x"), Val("y")))), Map("x" -> Const(2), "y" -> Const(3))))
+  private def lambdaTest = {
+    val lambdaBO = Lambda(List("n"), BinaryOperation(Add, Val("n"), Const(2)))
+    Console.println(interpreter.apply(lambdaBO))
+    Console.println(interpreter.apply(Apply(lambdaBO, Map("n" -> BinaryOperation(Mul, Val("x"), Val("y")))), Map("x" -> Const(2), "y" -> Const(3))))
+
+    val lambdaIf = Lambda(List("n", "y"), If(Eq(Const(1), Val("n")), Val("y"), Const(321)))
+    Console.println(interpreter.apply(lambdaIf))
+    Console.println(interpreter.apply(Apply(lambdaIf, Map("n" -> Const(1), "y" -> Const(123)))))
+  }
+
+  private def valDeclTest = {
+    val valDecl = ValDecl(Map("x" -> BinaryOperation(Add, Const(3), Const(4))), BinaryOperation(Add, Const(2), Val("x")))
+    Console.println(interpreter.apply(valDecl))
+
+    val valDecl2 = ValDecl(Map(
+      "x" -> BinaryOperation(Add, Const(3), Const(4)),
+      "y" -> Lambda(List("n"), BinaryOperation(Add, Val("n"), Const(2)))),
+      BinaryOperation(Add, Apply(Val("y"), Map("n" -> Const(1))), Val("x")))
+    Console.println(interpreter.apply(valDecl2))
   }
 }
