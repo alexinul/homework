@@ -1,4 +1,3 @@
-// all the available constructs offered by the language
 sealed trait Expression
 
 sealed trait Value extends Expression
@@ -11,40 +10,38 @@ final case class Val(value: String) extends Value {
   override def toString: String = value
 }
 
-final case class Eq(lhs: Expression, rhs: Expression) extends Expression
+final case class Eq(l: Expression, r: Expression) extends Expression
 
 final case class If(condition: Expression, ifThen: Expression, elseIf: Expression) extends Expression
 
 final case class Lambda(arguments: List[String], body: Expression) extends Expression
 
-final case class Apply(expression: Expression, parameters: Map[String, Expression]) extends Expression
+final case class Apply(lambda: Expression, parameters: Map[String, Expression]) extends Expression
 
-final case class ValDecl(value: Map[String, Expression], body: Expression) extends Expression
+final case class ValDecl(variable: Map[String, Expression], body: Expression) extends Expression
 
-final case class BinaryOperation(operation: Operation, lhs: Expression, rhs: Expression) extends Expression
+final case class BinaryOperation(operation: Operation, l: Expression, r: Expression) extends Expression
 
-// the 4 types of available operations
 sealed trait Operation {
-  def apply(lhs: Int, rhs: Int): Const
+  def apply(l: Int, r: Int): Const
 }
 
 final case object Add extends Operation {
-  def apply(lhs: Int, rhs: Int): Const = Const(lhs + rhs)
+  def apply(l: Int, r: Int): Const = Const(l + r)
 }
 
 final case object Sub extends Operation {
-  def apply(lhs: Int, rhs: Int): Const = Const(lhs - rhs)
+  def apply(l: Int, r: Int): Const = Const(l - r)
 }
 
 final case object Mul extends Operation {
-  def apply(lhs: Int, rhs: Int): Const = Const(lhs * rhs)
+  def apply(l: Int, r: Int): Const = Const(l * r)
 }
 
 final case object Div extends Operation {
-  def apply(lhs: Int, rhs: Int): Const = Const(lhs / rhs)
+  def apply(l: Int, r: Int): Const = Const(l / r)
 }
 
-// helper object for creating object
 object Expression {
   def apply(i: Int): Const = Const(i)
 

@@ -4,10 +4,10 @@ object interpreter {
     program match {
       case terminal@Const(_) => Left(terminal)
       case terminal@Val(_) => Left(terminal)
-      case Lambda(arguments, body) => Right(Lambda(arguments, body))
+      case terminal@Lambda(_, _) => Right(terminal)
       case Eq(lhs, rhs) => evaluateEq(lhs, rhs, environment)
       case BinaryOperation(op, lhs, rhs) => evaluateBinaryOperation(op, lhs, rhs, environment)
-      case If(condition, ifThen, elseIf) => evaluateIf(environment, condition, ifThen, elseIf)
+      case If(condition, ifThen, elseIf) => evaluateIf(condition, ifThen, elseIf, environment)
       case Apply(expression, parameters) =>
         interpreter.apply(expression, environment) match {
           case Left(value) => value match {
@@ -23,7 +23,7 @@ object interpreter {
       case ValDecl(value, body) => interpreter.apply(body, environment ++ value)
     }
 
-  private def evaluateIf(environment: Map[String, Expression], condition: Expression, ifThen: Expression, elseIf: Expression) = {
+  private def evaluateIf(condition: Expression, ifThen: Expression, elseIf: Expression, environment: Map[String, Expression]) = {
     interpreter.apply(condition, environment) match {
       case Left(Const(1)) => evaluateBOPart(ifThen, environment)
       case _ => evaluateBOPart(elseIf, environment)
