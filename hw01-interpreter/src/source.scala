@@ -15,7 +15,7 @@ object Source extends App {
             BinaryOperation(Add,
               Apply(Val("fib"), Map("n" -> BinaryOperation(Sub, Val("n"), Const(1)))),
               Apply(Val("fib"), Map("n" -> BinaryOperation(Sub, Val("n"), Const(2)))))))
-      })), Apply(Val("fib"), Map("n" -> Const(6)))
+      })), Apply(Val("fib"), Map("n" -> Const(7)))
     )
     Console.println(interpreter.apply(fib))
   }

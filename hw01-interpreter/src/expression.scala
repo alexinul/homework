@@ -47,17 +47,17 @@ object Expression {
 
   def apply(s: String): Val = Val(s)
 
-  def apply(l: Expression, r: Expression): Eq = new Eq(l, r)
+  def apply(l: Expression, r: Expression): Eq = Eq(l, r)
 
   def apply(i: Expression, t: Expression, e: Expression): If = If(i, t, e)
 
-  def apply(arguments: List[String], body: Expression): Lambda = new Lambda(arguments, body)
+  def apply(arguments: List[String], body: Expression): Lambda = Lambda(arguments, body)
 
-  def apply(expression: Expression, parameters: Map[String, Expression]): Apply = new Apply(expression, parameters)
+  def apply(expression: Expression, parameters: Map[String, Expression]): Apply = Apply(expression, parameters)
 
-  def apply(value: Map[String, Expression], body: Expression): ValDecl = new ValDecl(value, body)
+  def apply(value: Map[String, Expression], body: Expression): ValDecl = ValDecl(value, body)
 
-  def apply(o: Operation, l: Expression, r: Expression): BinaryOperation = new BinaryOperation(o, l, r)
+  def apply(o: Operation, l: Expression, r: Expression): BinaryOperation = BinaryOperation(o, l, r)
 }
 
 
