@@ -1,3 +1,6 @@
+import ast._
+import ast.operation._
+
 object Source extends App {
   simpleOperationsTest
   lambdaTest
@@ -8,13 +11,15 @@ object Source extends App {
   private def fibonacciTest = {
     val fib = ValDecl(
       Map("fib" -> Lambda(List("n"), {
-        If(Eq(Val("n"), Const(0)),
+        If(BinaryOperation(Val("n"), Eq, Const(0)),
           Const(0),
-          If(Eq(Val("n"), Const(1)),
+          If(BinaryOperation(Val("n"), Eq, Const(1)),
             Const(1),
-            BinaryOperation(Add,
-              Apply(Val("fib"), Map("n" -> BinaryOperation(Sub, Val("n"), Const(1)))),
-              Apply(Val("fib"), Map("n" -> BinaryOperation(Sub, Val("n"), Const(2)))))))
+            BinaryOperation(
+              Apply(Val("fib"), Map("n" -> BinaryOperation(Val("n"), Sub, Const(1)))),
+              Add,
+              Apply(Val("fib"), Map("n" -> BinaryOperation(Val("n"), Sub, Const(2))))))
+        )
       })), Apply(Val("fib"), Map("n" -> Const(7)))
     )
     Console.println(interpreter.apply(fib))
@@ -23,26 +28,26 @@ object Source extends App {
   private def factorialTest = {
     val fact5 = ValDecl(
       Map("fact" -> Lambda(List("n"), {
-        If(Eq(Val("n"), Const(0)),
+        If(BinaryOperation(Val("n"), Eq, Const(0)),
           Const(1),
-          BinaryOperation(Mul, Val("n"), Apply(Val("fact"), Map("n" -> BinaryOperation(Sub, Val("n"), Const(1))))))
+          BinaryOperation(Val("n"), Mul, Apply(Val("fact"), Map("n" -> BinaryOperation(Val("n"), Sub, Const(1))))))
       })), Apply(Val("fact"), Map("n" -> Const(5)))
     )
     Console.println(interpreter.apply(fact5))
   }
 
   private def simpleOperationsTest = {
-    val add12 = BinaryOperation(Sub, BinaryOperation(Add, Const(3), Const(4)), Const(2))
-    val addA3 = BinaryOperation(Add, Val("A"), Const(1))
-    val eq55 = Eq(add12, Const(5))
-    val eq56 = Eq(add12, Const(6))
+    val add12 = BinaryOperation(BinaryOperation(Const(3), Add, Const(4)), Sub, Const(2))
+    val addA3 = BinaryOperation(Val("A"), Add, Const(1))
+    val eq55 = BinaryOperation(add12, Eq, Const(5))
+    val eq56 = BinaryOperation(add12, Eq, Const(6))
     val one = Const(1)
     val a = Val("1")
-    val eqaa = Eq(a, one);
-    val `if` = If(Eq(one, one), add12, eq55)
-    val xAddy2 = BinaryOperation(Mul, Val("x"), Val("y"))
-    val xAddy = BinaryOperation(Add, Val("x"), Val("y"))
-    val oneAddLambda = BinaryOperation(Add, one, Lambda(List("n"), BinaryOperation(Sub, Val("n"), Const(1))))
+    val eqaa = BinaryOperation(a, Eq, one);
+    val `if` = If(BinaryOperation(one, Eq, one), add12, eq55)
+    val xAddy2 = BinaryOperation(Val("x"), Mul, Val("y"))
+    val xAddy = BinaryOperation(Val("x"), Add, Val("y"))
+    val oneAddLambda = BinaryOperation(one, Add, Lambda(List("n"), BinaryOperation(Val("n"), Sub, Const(1))))
 
     Console.println(add12.toString + "|" + interpreter.apply(add12))
     try {
@@ -61,7 +66,7 @@ object Source extends App {
     }
     Console.println(`if`.toString + "|" + interpreter.apply(`if`))
     Console.println(interpreter.apply(xAddy, Map("x" -> Const(1), "y" -> Const(2))))
-    Console.println(interpreter.apply(xAddy2, Map("x" -> Const(2), "y" -> BinaryOperation(Add, Const(3), Const(2)))))
+    Console.println(interpreter.apply(xAddy2, Map("x" -> Const(2), "y" -> BinaryOperation(Const(3), Add, Const(2)))))
     try {
       Console.println(interpreter.apply(oneAddLambda))
     } catch {
@@ -70,23 +75,23 @@ object Source extends App {
   }
 
   private def lambdaTest = {
-    val lambdaBO = Lambda(List("n"), BinaryOperation(Add, Val("n"), Const(2)))
+    val lambdaBO = Lambda(List("n"), BinaryOperation(Val("n"), Add, Const(2)))
     Console.println(interpreter.apply(lambdaBO))
-    Console.println(interpreter.apply(Apply(lambdaBO, Map("n" -> BinaryOperation(Mul, Val("x"), Val("y")))), Map("x" -> Const(2), "y" -> Const(3))))
+    Console.println(interpreter.apply(Apply(lambdaBO, Map("n" -> BinaryOperation(Val("x"), Mul, Val("y")))), Map("x" -> Const(2), "y" -> Const(3))))
 
-    val lambdaIf = Lambda(List("n", "y"), If(Eq(Const(1), Val("n")), Val("y"), Const(321)))
+    val lambdaIf = Lambda(List("n", "y"), If(BinaryOperation(Const(1), Eq, Val("n")), Val("y"), Const(321)))
     Console.println(interpreter.apply(lambdaIf))
     Console.println(interpreter.apply(Apply(lambdaIf, Map("n" -> Const(1), "y" -> Const(123)))))
   }
 
   private def valDeclTest = {
-    val valDecl = ValDecl(Map("x" -> BinaryOperation(Add, Const(3), Const(4))), BinaryOperation(Add, Const(2), Val("x")))
+    val valDecl = ValDecl(Map("x" -> BinaryOperation(Const(3), Add, Const(4))), BinaryOperation(Const(2), Add, Val("x")))
     Console.println(interpreter.apply(valDecl))
 
     val valDecl2 = ValDecl(Map(
-      "x" -> BinaryOperation(Add, Const(3), Const(4)),
-      "y" -> Lambda(List("n"), BinaryOperation(Add, Val("n"), Val("x")))),
-      BinaryOperation(Add, Apply(Val("y"), Map("n" -> Const(1))), Val("x")))
+      "x" -> BinaryOperation(Const(3), Add, Const(4)),
+      "y" -> Lambda(List("n"), BinaryOperation(Val("n"), Add, Val("x")))),
+      BinaryOperation(Apply(Val("y"), Map("n" -> Const(1))), Add, Val("x")))
     Console.println(interpreter.apply(valDecl2))
   }
 }
