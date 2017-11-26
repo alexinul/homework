@@ -53,6 +53,12 @@ Obviously, similarly to how you needed to represent "values" in your program usi
 * `<apply>`
   * this, is in essence, has the type of the function you are applying
 
+### When in doubt
+
+When in doubt you have two fallbacks:
+1) How do Haskell or Scala handle a similar case?
+2) Always go with the type check that is more restrictive
+
 ## Extra work
 
 #### Optional type annotations
