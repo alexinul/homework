@@ -31,6 +31,28 @@ Prelude> :t \x -> x
 
 What is the type of the [identity](https://stackoverflow.com/questions/3136338/uses-for-haskell-id-function) function? Well, the repl is quite clear, it's a function type from any type `t` with a result value of type `t`.
 
+#### Stating the obvious
+
+Obviously, similarly to how you needed to represent "values" in your program using some specialized type, now you need a novel type representing types.
+
+## Semantics
+* `<binary-operation>`
+  * the types of both expressions have to be of the "Integer" types. The resulting type is always "Integer"
+* `<eq>`
+  * the types of both expressions will be "Integer", and the result type as well
+* `<if>`
+  * unlike in the first homework, we cannot have different result types on both branches of the if — unless you implement union types from the "Extra Work" section. Therefore, it is a type error if both branches return something different.
+* `<val-decl>`
+  * work the same way as before. The type of the variable is inferred from its definition.
+* `<val>`
+  * semantically this boils down to "using" the value of a variable
+  * fails at runtime if the variable that is being dereferenced is not defined anywhere
+  * has the type of the variable inferred at definition call site
+* <lambda>
+  * the type of a lambda is always dependent on the number and types of its parameters, and the type of the resulting value
+* `<apply>`
+  * this, is in essence, has the type of the function you are applying
+
 ## Extra work
 
 #### Optional type annotations
