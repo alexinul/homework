@@ -1,7 +1,7 @@
 import ast._
 import ast.operation.Operation
 
-object interpreter {
+object Interpreter {
 
   def apply(program: Expression, environment: Map[String, Expression] = Map()): Expression =
     program match {
@@ -9,20 +9,20 @@ object interpreter {
       case BinaryOperation(lhs, op, rhs) => evaluateBinaryOperation(lhs, op, rhs, environment)
       case If(condition, ifThen, elseIf) => evaluateIf(condition, ifThen, elseIf, environment)
       case Apply(expression, parameters) =>
-        interpreter.apply(expression, environment) match {
+        Interpreter.apply(expression, environment) match {
           case Val(id) => evaluate(id, environment) match {
-            case Lambda(_, body) => interpreter.apply(body, environment ++ evaluateParameters(parameters, environment))
+            case Lambda(_, body) => Interpreter.apply(body, environment ++ evaluateParameters(parameters, environment))
             case _ => throw new RuntimeException("Error during function invocation")
           }
-          case Lambda(_, body) => interpreter.apply(body, environment ++ evaluateParameters(parameters, environment))
+          case Lambda(_, body) => Interpreter.apply(body, environment ++ evaluateParameters(parameters, environment))
           case _ => throw new RuntimeException("Error during function invocation")
         }
       case ValDecl(value, body)
-      => interpreter.apply(body, environment ++ value)
+      => Interpreter.apply(body, environment ++ value)
     }
 
   private def evaluateIf(condition: Expression, ifThen: Expression, elseIf: Expression, environment: Map[String, Expression]) = {
-    interpreter.apply(condition, environment) match {
+    Interpreter.apply(condition, environment) match {
       case Bool(true) => evaluateBOPart(ifThen, environment)
       case Bool(false) => evaluateBOPart(elseIf, environment)
       case _ => throw new RuntimeException("The if condition is not a boolean opeartion")
@@ -40,11 +40,11 @@ object interpreter {
   }
 
   private def evaluateBOPart(expression: Expression, environment: Map[String, Expression]) = {
-    interpreter.apply(expression, environment) match {
+    Interpreter.apply(expression, environment) match {
       case terminal@(Const(_)|Bool(_)) => terminal
       case Val(id) => evaluate(id, environment) match {
         case terminal@(Const(_)|Bool(_)) => terminal
-        case nonTerminal@_ => interpreter.apply(nonTerminal, environment)
+        case nonTerminal@_ => Interpreter.apply(nonTerminal, environment)
       }
       case _ => throw new RuntimeException("Cannot do binary operations between lambdas")
     }
@@ -58,5 +58,5 @@ object interpreter {
   }
 
   private def evaluateParameters(parameters: Map[String, Expression], environment: Map[String, Expression]) =
-    parameters.map { case (id, body) => id -> (interpreter.apply(body, environment)) }
+    parameters.map { case (id, body) => id -> (Interpreter.apply(body, environment)) }
 }
