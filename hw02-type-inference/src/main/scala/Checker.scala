@@ -1,15 +1,21 @@
 import ast._
 import ast.Type
-import ast.operation._;
+import ast.operation._
 
 object Checker {
+
 
   def apply(program: Expression, environment: Map[Expression, Type] = Map()): Type = {
     program match {
       case Const(_) => new IntType
       case Bool(_) => new BoolType
+      case ref@Val(_) => environment.get(ref) match {
+        case Some(value) => value
+        case None => throw new RuntimeException("Val was not declared")
+      }
       case BinaryOperation(l, operation, r) => checkBinaryOperation(l, operation, r, environment)
       case If(condition, ifThen, elseIf) => checkIf(condition, ifThen, elseIf, environment)
+      case Lambda(arguments, body) => checkLambda(arguments, body, environment)
     }
   }
 
@@ -29,5 +35,7 @@ object Checker {
       case _ => throw new RuntimeException("If must have a boolean as the condition")
     }
 
+  def checkLambda(arguments: Map[Val, Type], body: Expression, environment: Map[Expression, Type]): Type =
+    FunctionType(arguments.map(_._2).toList, apply(body, environment ++ arguments))
 
 }
