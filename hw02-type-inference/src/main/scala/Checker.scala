@@ -4,7 +4,6 @@ import ast.operation._
 
 object Checker {
 
-
   def apply(program: Expression, environment: Map[Expression, Type] = Map()): Type = {
     program match {
       case Const(_) => new IntType
@@ -16,6 +15,7 @@ object Checker {
       case BinaryOperation(l, operation, r) => checkBinaryOperation(l, operation, r, environment)
       case If(condition, ifThen, elseIf) => checkIf(condition, ifThen, elseIf, environment)
       case Lambda(arguments, body) => checkLambda(arguments, body, environment)
+      case ValDecl(variable, body) => checkValDecl(variable, body, environment)
     }
   }
 
@@ -37,5 +37,8 @@ object Checker {
 
   def checkLambda(arguments: Map[Val, Type], body: Expression, environment: Map[Expression, Type]): Type =
     FunctionType(arguments.map(_._2).toList, apply(body, environment ++ arguments))
+
+  def checkValDecl(variable: Map[Val, Expression], body: Expression, environment: Map[Expression, Type]): _root_.ast.Type =
+    apply(body, environment ++ variable.map { case (k: Val, v: Expression) => (k, apply(v, environment)) })
 
 }

@@ -26,7 +26,7 @@ final case class Lambda(arguments: Map[Val, Type], body: Expression) extends Exp
 
 final case class Apply(lambda: Expression, parameters: Map[String, Expression]) extends Expression
 
-final case class ValDecl(variable: Map[String, Expression], body: Expression) extends Expression
+final case class ValDecl(variable: Map[Val, Expression], body: Expression) extends Expression
 
 final case class BinaryOperation(l: Expression, operation: Operation, r: Expression) extends Expression
 
