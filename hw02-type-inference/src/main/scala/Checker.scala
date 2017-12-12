@@ -16,6 +16,7 @@ object Checker {
       case If(condition, ifThen, elseIf) => checkIf(condition, ifThen, elseIf, environment)
       case Lambda(arguments, body) => checkLambda(arguments, body, environment)
       case ValDecl(variable, body) => checkValDecl(variable, body, environment)
+      case Apply(lambda, parameters) => checkApply(lambda, parameters, environment)
     }
   }
 
@@ -30,7 +31,7 @@ object Checker {
 
   def checkIf(condition: Expression, ifThen: Expression, elseIf: Expression, environment: Map[Expression, Type]): Type =
     apply(condition, environment) match {
-      case BoolType() => if (apply(ifThen) == apply(elseIf)) apply(ifThen) else throw new RuntimeException("If cannot have a different result type on each branch")
+      case BoolType() => if (apply(ifThen, environment) == apply(elseIf, environment)) apply(ifThen, environment) else throw new RuntimeException("If cannot have a different result type on each branch")
       //TODO: improve " if (equalType(apply(ifThen), apply(elseIf))) apply(ifThen) "  I have to get rid of the third apply
       case _ => throw new RuntimeException("If must have a boolean as the condition")
     }
@@ -38,7 +39,10 @@ object Checker {
   def checkLambda(arguments: Map[Val, Type], body: Expression, environment: Map[Expression, Type]): Type =
     FunctionType(arguments.map(_._2).toList, apply(body, environment ++ arguments))
 
-  def checkValDecl(variable: Map[Val, Expression], body: Expression, environment: Map[Expression, Type]): _root_.ast.Type =
+  def checkValDecl(variable: Map[Val, Expression], body: Expression, environment: Map[Expression, Type]): Type =
     apply(body, environment ++ variable.map { case (k: Val, v: Expression) => (k, apply(v, environment)) })
 
+  def checkApply(lambda: Expression, parameters: Map[Val, Expression], environment: Map[Expression, Type]): Type = {
+    apply(lambda, environment ++ parameters.map { case (k: Val, v: Expression) => (k, apply(v, environment)) })
+  }
 }

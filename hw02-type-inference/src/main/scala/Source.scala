@@ -3,10 +3,19 @@ import ast.operation._
 
 object Source extends App {
 
-  BinaryOperationsTest
-  IfTest
-  LambdaTest
-  valDeclTest
+  //  BinaryOperationsTest
+  //  IfTest
+  //  LambdaTest
+  //  valDeclTest
+  applyTest
+
+  private def applyTest = {
+    val lambdaBO = Lambda(Map(Val("n") -> new IntType), BinaryOperation(Val("n"), Add, Const(2)))
+    Console.println(Checker.apply(Apply(lambdaBO, Map(Val("n") -> BinaryOperation(Val("x"), Mul, Val("y")))), Map(Val("x") -> new IntType, Val("y") -> new IntType)))
+
+    val lambdaIf = Lambda(Map(Val("n") -> new IntType, Val("y") -> new IntType), If(BinaryOperation(Const(1), Eq, Val("n")), Val("y"), Const(321)))
+    Console.println(Checker.apply(Apply(lambdaIf, Map(Val("n") -> Const(1), Val("y") -> Const(123)))))
+  }
 
   private def valDeclTest = {
     Console.println(Checker.apply(ValDecl(Map(Val("x") -> BinaryOperation(Const(3), Add, Const(4))), BinaryOperation(Const(2), Add, Val("x")))))
