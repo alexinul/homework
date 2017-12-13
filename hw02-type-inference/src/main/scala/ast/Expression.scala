@@ -10,6 +10,16 @@ final case class BoolType() extends Type
 
 final case class FunctionType(argumentsTypes: List[Type], resultType: Type) extends Type
 
+final case class VarType(sn: String) extends Type
+
+
+sealed trait OptionalType extends Type
+
+final case class NoType() extends OptionalType
+
+final case class AType(ty: Type) extends OptionalType
+
+
 sealed trait Expression
 
 sealed trait Value extends Expression
@@ -22,7 +32,7 @@ final case class Bool(value: Boolean) extends Value
 
 final case class If(condition: Expression, ifThen: Expression, elseIf: Expression) extends Expression
 
-final case class Lambda(arguments: Map[Val, Type], body: Expression) extends Expression
+final case class Lambda(arguments: Map[Val, Type], body: Expression, returnType: OptionalType = new NoType) extends Expression
 
 final case class Apply(lambda: Expression, parameters: Map[Val, Expression]) extends Expression
 

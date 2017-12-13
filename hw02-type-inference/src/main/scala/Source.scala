@@ -5,9 +5,22 @@ object Source extends App {
 
   //  BinaryOperationsTest
   //  IfTest
-  //  LambdaTest
+  LambdaTest
   //  valDeclTest
-  applyTest
+  //  applyTest
+  //  factorialTest
+
+
+  private def factorialTest = {
+    val fact5 = ValDecl(
+      Map(Val("fact") -> Lambda(Map(Val("n") -> new IntType), {
+        If(BinaryOperation(Val("n"), Eq, Const(0)),
+          Const(1),
+          BinaryOperation(Val("n"), Mul, Apply(Val("fact"), Map(Val("n") -> BinaryOperation(Val("n"), Sub, Const(1))))))
+      })), Apply(Val("fact"), Map(Val("n") -> Const(5)))
+    )
+    Console.println(Checker.apply(fact5))
+  }
 
   private def applyTest = {
     val lambdaBO = Lambda(Map(Val("n") -> new IntType), BinaryOperation(Val("n"), Add, Const(2)))
@@ -33,17 +46,18 @@ object Source extends App {
 
   private def LambdaTest = {
     try {
-      println(Checker.apply(Lambda(Map(Val("n") -> new IntType, Val("x") -> new BoolType), BinaryOperation(Val("n"), Add, Val("x")))))
+      println(Checker.typeToExternalForm(Checker.typeOf(Lambda(Map(Val("n") -> new IntType, Val("x") -> new BoolType), BinaryOperation(Val("n"), Add, Val("x")))).ty))
     } catch {
       case e: Exception => println(e)
     }
     try {
-      println(Checker.apply(Lambda(Map(Val("n") -> new IntType, Val("x") -> new IntType), BinaryOperation(Val("n"), Add, BinaryOperation(Val("n"), Eq, Val("x"))))))
+      println(Checker.typeToExternalForm(Checker.typeOf(Lambda(Map(Val("n") -> new IntType, Val("x") -> new IntType), BinaryOperation(Val("n"), Add, BinaryOperation(Val("n"), Eq, Val("x"))))).ty))
     } catch {
       case e: Exception => println(e)
     }
-    println(Checker.apply(Lambda(Map(Val("n") -> new IntType, Val("x") -> new IntType), BinaryOperation(Val("n"), Add, Val("x")))))
-    println(Checker.apply(Lambda(Map(Val("n") -> new IntType, Val("x") -> new IntType), BinaryOperation(Val("n"), Add, BinaryOperation(Val("n"), Sub, Val("x"))))))
+    println(Checker.typeToExternalForm(Checker.typeOf(Lambda(Map(Val("n") -> new IntType, Val("x") -> new IntType), BinaryOperation(Val("n"), Add, Val("x")))).ty))
+    println(Checker.typeToExternalForm(Checker.typeOf(Lambda(Map(Val("n") -> new IntType, Val("x") -> new IntType), BinaryOperation(Val("n"), Add, BinaryOperation(Val("n"), Sub, Val("x"))))).ty))
+    println(Checker.typeToExternalForm(Checker.typeOf(Lambda(Map(Val("n") -> new IntType), Val("n"))).ty))
   }
 
   private def BinaryOperationsTest = {
@@ -57,6 +71,7 @@ object Source extends App {
     } catch {
       case e: Exception => println(e)
     }
+
   }
 
   private def IfTest = {
