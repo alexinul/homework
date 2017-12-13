@@ -5,11 +5,21 @@ object Source extends App {
 
   //  BinaryOperationsTest
   //  IfTest
-  LambdaTest
+  //  LambdaTest
   //  valDeclTest
   //  applyTest
   //  factorialTest
+  recTest
 
+  //  Console.println(Checker.typeOf(ValDecl(Map(Val("x") -> BinaryOperation(Const(3), Add, Const(4))), BinaryOperation(Const(2), Add, Val("x")))))
+
+  private def recTest = {
+    println(Checker.typeToExternalForm(Checker.typeOf(ValDecl(
+      Map(Val("rec") -> Lambda(Map(), {
+        Val("rec")
+      })), BinaryOperation(Const(1), Add, Const(2))
+    )).ty))
+  }
 
   private def factorialTest = {
     val fact5 = ValDecl(

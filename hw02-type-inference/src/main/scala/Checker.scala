@@ -17,7 +17,7 @@ object Checker {
       case BinaryOperation(l, operation, r) => checkBinaryOperation(l, operation, r, environment)
       case If(condition, ifThen, elseIf) => checkIf(condition, ifThen, elseIf, environment)
       case Lambda(arguments, body, _) => checkLambda(arguments, body, environment)
-      case ValDecl(variable, body) => checkValDecl(variable, body, environment)
+      case ValDecl(variable, body, _, _) => checkValDecl(variable, body, environment)
       case Apply(lambda, parameters) => checkApply(lambda, parameters, environment)
     }
   }
@@ -75,11 +75,11 @@ object Checker {
     val ty11 = applySubstToType(ty1, subst)
     val ty22 = applySubstToType(ty2, subst)
     if (ty11 == ty22) subst
-    else if (ty11 == VarType) {
+    else if (ty11.isInstanceOf[VarType]) {
       ty11 match {
         case self@VarType(_) => if (noOccurrence(self, ty22)) extendSubst(subst, self, ty22) else throw new RuntimeException("Cannot find type")
       }
-    } else if (ty22 == VarType) {
+    } else if (ty22.isInstanceOf[VarType]) {
       ty22 match {
         case self@VarType(_) => if (noOccurrence(self, ty11)) extendSubst(subst, self, ty11) else throw new RuntimeException("Cannot find type")
       }
@@ -111,7 +111,7 @@ object Checker {
       case Bool(_) => Answer(new BoolType, subst)
       case ref@Val(_) => environment.get(ref) match {
         case Some(value) => Answer(value, subst)
-        case None => throw new RuntimeException("Val was not declared")
+        case None => Answer(freshTvarType.getType(), subst)
       }
       case BinaryOperation(l, operation, r) => evaluateBinaryOperation(l, operation, r, subst, environment)
       case If(condition, ifThen, elseIf) => {
@@ -128,12 +128,22 @@ object Checker {
       case Lambda(arguments, body, returnType) => {
         val retType = `oType->type`(returnType)
 
-        typeOf(body, environment ++ arguments, subst)
+        typeOf(body, environment ++ arguments.map { case (k, v) => (k, `oType->type`(v)) }, subst)
 
         new Answer(FunctionType(arguments.map(_._2).toList, retType), subst)
       }
       case Apply(lambda, parameters) => ???
-      case ValDecl(variable, body) => ???
+      case ValDecl(variable, body, oVarTypes, oReturnType) => {
+        val variableTypes = variable.map { case (k, _) => k -> `oType->type`(oVarTypes.get(k).getOrElse(null)) }
+        val resultType = `oType->type`(oReturnType)
+
+        val f = new FunctionType(variableTypes.values.toList, resultType)
+        val ans = typeOf(body, environment ++ variableTypes, subst)
+
+        unifier(ans.ty, resultType, subst, body);
+
+        typeOf(body, environment ++ variable.map { case (k: Val, v: Expression) => (k, typeOf(v, environment, subst).ty) }, subst)
+      }
     }
   }
 
@@ -151,10 +161,11 @@ object Checker {
     }
   }
 
-  def `oType->type`(otype: OptionalType) = {
+  def `oType->type`(otype: Type) = {
     otype match {
-      case NoType() => freshTvarType.getType()
       case AType(ty) => ty
+      case null | NoType() => freshTvarType.getType()
+      case _ => otype
     }
   }
 

@@ -34,9 +34,9 @@ final case class If(condition: Expression, ifThen: Expression, elseIf: Expressio
 
 final case class Lambda(arguments: Map[Val, Type], body: Expression, returnType: OptionalType = new NoType) extends Expression
 
-final case class Apply(lambda: Expression, parameters: Map[Val, Expression]) extends Expression
+final case class Apply(lambda: Expression, parameters: Map[Val, Expression] = Map()) extends Expression
 
-final case class ValDecl(variable: Map[Val, Expression], body: Expression) extends Expression
+final case class ValDecl(variable: Map[Val, Expression], body: Expression, varTypes: Map[Val, OptionalType] = Map(), returnType: OptionalType = new NoType) extends Expression
 
 final case class BinaryOperation(l: Expression, operation: Operation, r: Expression) extends Expression
 
