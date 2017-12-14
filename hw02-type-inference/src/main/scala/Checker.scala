@@ -11,26 +11,17 @@ object Checker {
         case None => throw new RuntimeException("Val not declared")
       }
       case BinaryOperation(l, operation, r) => evaluateBinaryOperation(l, operation, r, subst, environment)
-      case If(condition, ifThen, elseIf) => {
-        val ans1 = typeOf(condition, environment, subst)
-        val subst1 = unifier(ans1.ty, new BoolType, ans1.subst, condition)
-
-        val ans2 = typeOf(ifThen, environment, subst1)
-        val ans3 = typeOf(elseIf, environment, ans2.subst)
-
-        val subst2 = unifier(ans2.ty, ans3.ty, ans3.subst, exp)
-
-        Answer(ans2.ty, subst2)
-      }
+      case If(condition, ifThen, elseIf) => evaluateIf(exp, environment, subst, condition, ifThen, elseIf)
       case Lambda(arguments, body) => evaluateLambda(environment, subst, arguments, body)
       case Apply(lambda, parameters) => {
         val resultType = freshTvarType.getType()
         val ans = typeOf(lambda, environment, subst)
-        val pAns = parameters.map { case (v, e) => v -> typeOf(e, environment, subst).ty }
+        val pAns = parameters.map { case (v, e) => v -> typeOf(e, environment, ans.subst) }
 
-        unifier(ans.ty, FunctionType(pAns.values.toList, resultType), subst, exp)
 
-        new Answer(resultType, subst)
+        val subst1 = unifier(ans.ty, FunctionType(pAns.values.map(a => a.ty).toList, resultType), ans.subst, exp)
+
+        new Answer(resultType, subst1)
       }
       case ValDecl(variable, body, oVarTypes, oReturnType) => {
         typeOf(body, environment ++ variable.map { case (v, e) => v -> typeOf(e, environment, subst).ty }, subst)
@@ -47,6 +38,7 @@ object Checker {
       }
     }
   }
+
 
   def applyOneSubst(ty0: Type, tvar: VarType, ty1: Type): Type = {
     ty0 match {
@@ -83,7 +75,7 @@ object Checker {
         case self@VarType(_) => if (noOccurrence(self, ty11)) extendSubst(subst, self, ty11) else throw new RuntimeException("Cannot find type")
       }
     }
-    else if (ty11 == FunctionType && ty22 == FunctionType) {
+    else if (ty11.isInstanceOf[FunctionType] && ty22.isInstanceOf[FunctionType]) {
       (ty11, ty22) match {
         case (FunctionType(argTy1, resTy1), FunctionType(argTy2, resTy2)) => {
           (argTy1 zip argTy2).map { case (arg1, arg2) => subst ++ unifier(arg1, arg2, subst, exp) }
@@ -109,6 +101,20 @@ object Checker {
     val ans = typeOf(body, environment ++ args, subst)
 
     new Answer(FunctionType(args.values.toList, ans.ty), ans.subst)
+  }
+
+  private def evaluateIf(exp: Expression, environment: Map[Expression, Type], subst: Map[VarType, Type], condition: Expression, ifThen: Expression, elseIf: Expression) = {
+
+    val ans1 = typeOf(condition, environment, subst)
+    val subst1 = unifier(ans1.ty, new BoolType, ans1.subst, condition)
+
+    val ans2 = typeOf(ifThen, environment, subst1)
+    val ans3 = typeOf(elseIf, environment, ans2.subst)
+
+    val subst2 = unifier(ans2.ty, ans3.ty, ans3.subst, exp)
+
+    Answer(ans2.ty, subst2)
+
   }
 
   private def evaluateBinaryOperation(l: Expression, operation: Operation, r: Expression, subst: Map[VarType, Type], environment: Map[Expression, Type]) = {
