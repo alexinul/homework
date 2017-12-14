@@ -54,11 +54,11 @@ object Source extends App {
   }
 
   private def LambdaTest = {
-    //      val ans = Checker.typeOf(Lambda(Map(Val("n") -> new NoType, Val("x") -> new NoType), BinaryOperation(Val("n"), Add, Val("x"))))
-    //      println(Checker.typeToExternalForm(ans.ty, ans.subst))
-
-    val ans = Checker.typeOf(Lambda(Map(Val("x") -> new NoType, Val("y") -> new NoType, Val("z") -> new NoType), If(Val("x"), Val("y"), Val("z"))))
+    val ans = Checker.typeOf(Lambda(List(Val("n"), Val("x")), BinaryOperation(Val("n"), Add, Val("x"))))
     println(Checker.typeToExternalForm(ans.ty, ans.subst))
+
+    val ans1 = Checker.typeOf(Lambda(List(Val("x"), Val("y"), Val("z")), If(Val("x"), Val("y"), Val("z"))))
+    println(Checker.typeToExternalForm(ans1.ty, ans1.subst))
 
     //    try {
     //      println(Checker.typeToExternalForm(Checker.typeOf(Lambda(Map(Val("n") -> new NoType, Val("x") -> new NoType), BinaryOperation(Val("n"), Add, BinaryOperation(Val("n"), Eq, Val("x"))))).ty))

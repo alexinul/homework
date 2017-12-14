@@ -32,7 +32,7 @@ final case class Bool(value: Boolean) extends Value
 
 final case class If(condition: Expression, ifThen: Expression, elseIf: Expression) extends Expression
 
-final case class Lambda(arguments: Map[Val, Type], body: Expression, returnType: OptionalType = new NoType) extends Expression
+final case class Lambda(arguments: List[Val], body: Expression) extends Expression
 
 final case class Apply(lambda: Expression, parameters: Map[Val, Expression] = Map()) extends Expression
 

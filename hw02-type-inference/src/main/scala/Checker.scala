@@ -22,7 +22,7 @@ object Checker {
 
         Answer(ans2.ty, subst2)
       }
-      case Lambda(arguments, body, returnType) => evaluateLambda(environment, subst, arguments, body, returnType)
+      case Lambda(arguments, body) => evaluateLambda(environment, subst, arguments, body)
       case Apply(lambda, parameters) => {
         val resultType = freshTvarType.getType()
         val ans = typeOf(lambda, environment, subst)
@@ -104,12 +104,11 @@ object Checker {
     }
   }
 
-  private def evaluateLambda(environment: Map[Expression, Type], subst: Map[VarType, Type], arguments: Map[Val, Type], body: Expression, returnType: OptionalType) = {
-    val retType = `oType->type`(returnType)
-    val args = arguments.map { case (k, v) => (k, `oType->type`(v)) }
+  private def evaluateLambda(environment: Map[Expression, Type], subst: Map[VarType, Type], arguments: List[Val], body: Expression) = {
+    val args = arguments.map { v => v -> `oType->type`(new NoType) }.toMap
     val ans = typeOf(body, environment ++ args, subst)
 
-    new Answer(FunctionType(args.values.toList, retType), ans.subst)
+    new Answer(FunctionType(args.values.toList, ans.ty), ans.subst)
   }
 
   private def evaluateBinaryOperation(l: Expression, operation: Operation, r: Expression, subst: Map[VarType, Type], environment: Map[Expression, Type]) = {
