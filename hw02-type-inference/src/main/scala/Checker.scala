@@ -14,17 +14,9 @@ object Checker {
       case If(condition, ifThen, elseIf) => evaluateIf(exp, environment, subst, condition, ifThen, elseIf)
       case Lambda(arguments, body) => evaluateLambda(environment, subst, arguments, body)
       case Apply(lambda, parameters) => evaluateApply(exp, environment, subst, lambda, parameters)
-      case ValDecl(variable, body) => {
-        val resultType = freshTvarType.getType()
-        val env = environment ++ variable.map { case (v, _) => v -> freshTvarType.getType() }
-        val params = variable.map { case (_, e) => e -> typeOf(e, env, subst) }
-
-        val subst1 = params.foldLeft(subst) { case (m, p) => m ++ unifier(p._2.ty, resultType, p._2.subst, p._1) }
-        typeOf(body, env, subst1)
-      }
+      case ValDecl(variable, body) => evaluateValDecl(environment, subst, variable, body)
     }
   }
-
 
   def applyOneSubst(ty0: Type, tvar: VarType, ty1: Type): Type = {
     ty0 match {
@@ -63,10 +55,8 @@ object Checker {
     }
     else if (ty11.isInstanceOf[FunctionType] && ty22.isInstanceOf[FunctionType]) {
       (ty11, ty22) match {
-        case (FunctionType(argTy1, resTy1), FunctionType(argTy2, resTy2)) => {
-          (argTy1 zip argTy2).map { case (arg1, arg2) => subst ++ unifier(arg1, arg2, subst, exp) }
-          unifier(resTy1, resTy2, subst, exp)
-        }
+        case (FunctionType(argTy1, resTy1), FunctionType(argTy2, resTy2)) =>
+          (argTy1 zip argTy2).foldLeft(subst) { case (s, args) => s ++ unifier(args._1, args._2, subst, exp) } ++ unifier(resTy1, resTy2, subst, exp)
       }
     } else {
       throw new RuntimeException("Cannot find type")
@@ -80,6 +70,17 @@ object Checker {
       case FunctionType(argumentsTypes, resultType) => argumentsTypes.map(argType => noOccurrence(tvar, argType)).foldLeft(true)(_ && _) && noOccurrence(tvar, resultType)
       case VarType(_) => !(tvar == ty)
     }
+  }
+
+  private def evaluateValDecl(environment: Map[Expression, Type], subst: Map[VarType, Type], variable: Map[Val, Expression], body: Expression) = {
+
+    val resultType = freshTvarType.getType()
+    val env = environment ++ variable.map { case (v, _) => v -> freshTvarType.getType() }
+    val params = variable.map { case (_, e) => e -> typeOf(e, env, subst) }
+
+    val subst1 = params.foldLeft(subst) { case (m, p) => m ++ unifier(p._2.ty, resultType, p._2.subst, p._1) }
+    typeOf(body, env, subst1)
+
   }
 
   private def evaluateApply(exp: Expression, environment: Map[Expression, Type], subst: Map[VarType, Type], lambda: Expression, parameters: Map[Val, Expression]) = {
