@@ -13,28 +13,14 @@ object Checker {
       case BinaryOperation(l, operation, r) => evaluateBinaryOperation(l, operation, r, subst, environment)
       case If(condition, ifThen, elseIf) => evaluateIf(exp, environment, subst, condition, ifThen, elseIf)
       case Lambda(arguments, body) => evaluateLambda(environment, subst, arguments, body)
-      case Apply(lambda, parameters) => {
+      case Apply(lambda, parameters) => evaluateApply(exp, environment, subst, lambda, parameters)
+      case ValDecl(variable, body) => {
         val resultType = freshTvarType.getType()
-        val ans = typeOf(lambda, environment, subst)
-        val pAns = parameters.map { case (v, e) => v -> typeOf(e, environment, ans.subst) }
+        val env = environment ++ variable.map { case (v, _) => v -> freshTvarType.getType() }
+        val params = variable.map { case (_, e) => e -> typeOf(e, env, subst) }
 
-
-        val subst1 = unifier(ans.ty, FunctionType(pAns.values.map(a => a.ty).toList, resultType), ans.subst, exp)
-
-        new Answer(resultType, subst1)
-      }
-      case ValDecl(variable, body, oVarTypes, oReturnType) => {
-        typeOf(body, environment ++ variable.map { case (v, e) => v -> typeOf(e, environment, subst).ty }, subst)
-
-        //        val variableTypes = variable.map { case (k, _) => k -> `oType->type`(oVarTypes.get(k).getOrElse(null)) }
-        //        val resultType = `oType->type`(oReturnType)
-        //
-        //        val f = new FunctionType(variableTypes.values.toList, resultType)
-        //        val ans = typeOf(body, environment ++ variableTypes, subst)
-        //
-        //        unifier(ans.ty, resultType, subst, body);
-        //
-        //        typeOf(body, environment ++ variable.map { case (k: Val, v: Expression) => (k, typeOf(v, environment, subst).ty) }, subst)
+        val subst1 = params.foldLeft(subst) { case (m, p) => m ++ unifier(p._2.ty, resultType, p._2.subst, p._1) }
+        typeOf(body, env, subst1)
       }
     }
   }
@@ -94,6 +80,17 @@ object Checker {
       case FunctionType(argumentsTypes, resultType) => argumentsTypes.map(argType => noOccurrence(tvar, argType)).foldLeft(true)(_ && _) && noOccurrence(tvar, resultType)
       case VarType(_) => !(tvar == ty)
     }
+  }
+
+  private def evaluateApply(exp: Expression, environment: Map[Expression, Type], subst: Map[VarType, Type], lambda: Expression, parameters: Map[Val, Expression]) = {
+
+    val resultType = freshTvarType.getType()
+    val ans = typeOf(lambda, environment, subst)
+    val pAns = parameters.map { case (v, e) => v -> typeOf(e, environment, ans.subst) }
+
+    val subst1 = unifier(ans.ty, FunctionType(pAns.values.map(a => a.ty).toList, resultType), ans.subst, exp)
+
+    new Answer(resultType, subst1)
   }
 
   private def evaluateLambda(environment: Map[Expression, Type], subst: Map[VarType, Type], arguments: List[Val], body: Expression) = {

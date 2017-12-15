@@ -5,31 +5,37 @@ object Source extends App {
 
   //  BinaryOperationsTest
   //  IfTest
-  LambdaTest
+  //  LambdaTest
   //  valDeclTest
   //  applyTest
   //  factorialTest
-  //  recTest
+  recTest
 
 
-  //  private def recTest = {
-  //    println(Checker.typeToExternalForm(Checker.typeOf(ValDecl(
-  //      Map(Val("rec") -> Lambda(Map(), {
-  //        Val("rec")
-  //      })), BinaryOperation(Const(1), Add, Const(2))
-  //    )).ty))
-  //  }
-  //
-  //  private def factorialTest = {
-  //    val fact5 = ValDecl(
-  //      Map(Val("fact") -> Lambda(Map(Val("n") -> new IntType), {
-  //        If(BinaryOperation(Val("n"), Eq, Const(0)),
-  //          Const(1),
-  //          BinaryOperation(Val("n"), Mul, Apply(Val("fact"), Map(Val("n") -> BinaryOperation(Val("n"), Sub, Const(1))))))
-  //      })), Apply(Val("fact"), Map(Val("n") -> Const(5)))
-  //    )
-  //    println(Checker.typeToExternalForm(Checker.typeOf(fact5).ty))
-  //  }
+  private def recTest = {
+    val ans = Checker.typeOf(ValDecl(
+      Map(Val("rec") -> Lambda(List(), {
+        BinaryOperation(Const(1), Add, Const(2))
+      })), Apply(Val("rec"))
+    ))
+    println(Checker.typeToExternalForm(ans.ty, ans.subst))
+  }
+
+
+  private def factorialTest = {
+    val fact5 = ValDecl(
+      Map(Val("fact") -> Lambda(List(Val("n")), {
+        If(BinaryOperation(Val("n"), Eq, Const(0)),
+          Const(1),
+          BinaryOperation(Val("n"), Mul, Apply(Val("fact"), Map(Val("n") -> BinaryOperation(Val("n"), Sub, Const(1))))))
+      })), Apply(Val("fact"), Map(Val("n") -> Const(5)))
+    )
+
+    val ans = Checker.typeOf(fact5)
+
+    println(Checker.typeToExternalForm(ans.ty, ans.subst))
+  }
+
   //
   //  private def applyTest = {
   //    val lambdaBO = Lambda(Map(Val("n") -> new IntType), BinaryOperation(Val("n"), Add, Const(2)))
