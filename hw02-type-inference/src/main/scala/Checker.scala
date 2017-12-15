@@ -2,7 +2,7 @@ import ast.{Type, _}
 import ast.operation._
 
 object Checker {
-  def typeOf(exp: Expression, environment: Map[Expression, Type] = Map(), subst: Map[VarType, Type] = Map()): Answer = {
+  def typeOf(exp: Expression, environment: Map[Expression, Type] = Map(), subst: Map[VarType, Type] = Map(), optResult: Type = new NoType): Answer = {
     exp match {
       case Const(_) => Answer(new IntType, subst)
       case Bool(_) => Answer(new BoolType, subst)
@@ -13,14 +13,14 @@ object Checker {
       case BinaryOperation(l, operation, r) => evaluateBinaryOperation(l, operation, r, subst, environment)
       case If(condition, ifThen, elseIf) => evaluateIf(exp, environment, subst, condition, ifThen, elseIf)
       case Lambda(arguments, body) => evaluateLambda(environment, subst, arguments, body)
-      case Apply(lambda, parameters) => evaluateApply(exp, environment, subst, lambda, parameters)
+      case Apply(lambda, parameters) => evaluateApply(exp, environment, subst, lambda, parameters, optResult)
       case ValDecl(variable, body) => {
         val resultType = freshTvarType.getType()
         val env = environment ++ variable.map { case (v, _) => v -> freshTvarType.getType() }
         val params = variable.map { case (_, e) => e -> typeOf(e, env, subst) }
 
         val subst1 = params.foldLeft(subst) { case (m, p) => m ++ unifier(p._2.ty, resultType, p._2.subst, p._1) }
-        typeOf(body, env, subst1)
+        typeOf(body, env, subst1, resultType)
       }
     }
   }
@@ -82,9 +82,9 @@ object Checker {
     }
   }
 
-  private def evaluateApply(exp: Expression, environment: Map[Expression, Type], subst: Map[VarType, Type], lambda: Expression, parameters: Map[Val, Expression]) = {
+  private def evaluateApply(exp: Expression, environment: Map[Expression, Type], subst: Map[VarType, Type], lambda: Expression, parameters: Map[Val, Expression], optResult: Type = new NoType) = {
 
-    val resultType = freshTvarType.getType()
+    val resultType = `oType->type`(optResult)
     val ans = typeOf(lambda, environment, subst)
     val pAns = parameters.map { case (v, e) => v -> typeOf(e, environment, ans.subst) }
 
@@ -94,7 +94,7 @@ object Checker {
   }
 
   private def evaluateLambda(environment: Map[Expression, Type], subst: Map[VarType, Type], arguments: List[Val], body: Expression) = {
-    val args = arguments.map { v => v -> `oType->type`(new NoType) }.toMap
+    val args = arguments.map { v => v -> freshTvarType.getType() }.toMap
     val ans = typeOf(body, environment ++ args, subst)
 
     new Answer(FunctionType(args.values.toList, ans.ty), ans.subst)
@@ -139,7 +139,7 @@ object Checker {
     ty match {
       case IntType() => "int"
       case BoolType() => "bool"
-      case FunctionType(argumentsTypes, resultType) => argumentsTypes.map(argType => typeToExternalForm(argType, subst)).mkString(", ") + " -> " + typeToExternalForm(resultType, subst)
+      case FunctionType(argumentsTypes, resultType) => "(" + (argumentsTypes.map(argType => typeToExternalForm(argType, subst)).mkString(", ")) + ")" + " -> " + typeToExternalForm(resultType, subst)
       case self@VarType(_) => subst.get(self) match {
         case Some(value) => typeToExternalForm(value)
         case None => self.sn
