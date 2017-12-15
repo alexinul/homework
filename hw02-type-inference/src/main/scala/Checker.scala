@@ -56,10 +56,10 @@ object Checker {
     else if (ty11.isInstanceOf[FunctionType] && ty22.isInstanceOf[FunctionType]) {
       (ty11, ty22) match {
         case (FunctionType(argTy1, resTy1), FunctionType(argTy2, resTy2)) =>
-          (argTy1 zip argTy2).foldLeft(subst) { case (s, args) => s ++ unifier(args._1, args._2, subst, exp) } ++ unifier(resTy1, resTy2, subst, exp)
+          (argTy1 zip argTy2).foldLeft(subst) { case (s, args) => s ++ unifier(args._1, args._2, s, exp) } ++ unifier(resTy1, resTy2, subst, exp)
       }
     } else {
-      throw new RuntimeException("Cannot find type")
+      throw new RuntimeException("Cannot unify type")
     }
   }
 
@@ -79,8 +79,9 @@ object Checker {
     val params = variable.map { case (_, e) => e -> typeOf(e, env, subst) }
 
     val subst1 = params.foldLeft(subst) { case (m, p) => m ++ unifier(p._2.ty, resultType, p._2.subst, p._1) }
-    typeOf(body, env, subst1)
+    val ans = typeOf(body, env, subst1)
 
+    new Answer(resultType, ans.subst)
   }
 
   private def evaluateApply(exp: Expression, environment: Map[Expression, Type], subst: Map[VarType, Type], lambda: Expression, parameters: Map[Val, Expression]) = {
@@ -109,9 +110,7 @@ object Checker {
     val ans2 = typeOf(ifThen, environment, subst1)
     val ans3 = typeOf(elseIf, environment, ans2.subst)
 
-    val subst2 = unifier(ans2.ty, ans3.ty, ans3.subst, exp)
-
-    Answer(ans2.ty, subst2)
+    Answer(ans2.ty, unifier(ans2.ty, ans3.ty, ans3.subst, exp))
 
   }
 

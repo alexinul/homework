@@ -43,12 +43,19 @@ object Source extends App {
   fibonacciTest
 
   private def recTest = {
-    val ans = Checker.typeOf(ValDecl(
+    val ans1 = Checker.typeOf(ValDecl(
       Map(Val("rec") -> Lambda(List(), {
-        BinaryOperation(Apply(Val("rec")), Add, Const(2))
+        BinaryOperation(Apply(Val("rec")), Add, Const(1))
       })), Apply(Val("rec"))
     ))
-    println(Checker.typeToExternalForm(ans.ty, ans.subst))
+    println(Checker.typeToExternalForm(ans1.ty, ans1.subst))
+
+    val ans2 = Checker.typeOf(ValDecl(
+      Map(Val("rec") -> Lambda(List(), {
+        BinaryOperation(Const(1), Add, Const(1))
+      })), Apply(Val("rec"))
+    ))
+    println(Checker.typeToExternalForm(ans2.ty, ans2.subst))
   }
 
   private def fibonacciTest = {
