@@ -2,7 +2,7 @@ import ast.{Type, _}
 import ast.operation._
 
 object Checker {
-  def typeOf(exp: Expression, environment: Map[Expression, Type] = Map(), subst: Map[VarType, Type] = Map(), optResult: Type = new NoType): Answer = {
+  def typeOf(exp: Expression, environment: Map[Expression, Type] = Map(), subst: Map[VarType, Type] = Map()): Answer = {
     exp match {
       case Const(_) => Answer(new IntType, subst)
       case Bool(_) => Answer(new BoolType, subst)
@@ -13,14 +13,14 @@ object Checker {
       case BinaryOperation(l, operation, r) => evaluateBinaryOperation(l, operation, r, subst, environment)
       case If(condition, ifThen, elseIf) => evaluateIf(exp, environment, subst, condition, ifThen, elseIf)
       case Lambda(arguments, body) => evaluateLambda(environment, subst, arguments, body)
-      case Apply(lambda, parameters) => evaluateApply(exp, environment, subst, lambda, parameters, optResult)
+      case Apply(lambda, parameters) => evaluateApply(exp, environment, subst, lambda, parameters)
       case ValDecl(variable, body) => {
         val resultType = freshTvarType.getType()
         val env = environment ++ variable.map { case (v, _) => v -> freshTvarType.getType() }
         val params = variable.map { case (_, e) => e -> typeOf(e, env, subst) }
 
         val subst1 = params.foldLeft(subst) { case (m, p) => m ++ unifier(p._2.ty, resultType, p._2.subst, p._1) }
-        typeOf(body, env, subst1, resultType)
+        typeOf(body, env, subst1)
       }
     }
   }
@@ -82,9 +82,9 @@ object Checker {
     }
   }
 
-  private def evaluateApply(exp: Expression, environment: Map[Expression, Type], subst: Map[VarType, Type], lambda: Expression, parameters: Map[Val, Expression], optResult: Type = new NoType) = {
+  private def evaluateApply(exp: Expression, environment: Map[Expression, Type], subst: Map[VarType, Type], lambda: Expression, parameters: Map[Val, Expression]) = {
 
-    val resultType = `oType->type`(optResult)
+    val resultType = freshTvarType.getType()
     val ans = typeOf(lambda, environment, subst)
     val pAns = parameters.map { case (v, e) => v -> typeOf(e, environment, ans.subst) }
 

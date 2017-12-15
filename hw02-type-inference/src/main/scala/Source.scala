@@ -3,44 +3,44 @@ import ast.operation._
 
 object Source extends App {
 
-  //  println("Binary Operation Test")
-  //  println("---------------------------------------------------")
-  //  BinaryOperationsTest
-  //
-  //  println("---------------------------------------------------")
-  //  println("If Test")
-  //  println("---------------------------------------------------")
-  //  IfTest
-  //
-  //  println("---------------------------------------------------")
-  //  println("Lambda Test")
-  //  println("---------------------------------------------------")
-  //  LambdaTest
-  //
-  //  println("---------------------------------------------------")
-  //  println("ValDecl Test")
-  //  println("---------------------------------------------------")
-  //  valDeclTest
-  //
-  //  println("---------------------------------------------------")
-  //  println("Apply Test")
-  //  println("---------------------------------------------------")
-  //  applyTest
-  //
-  //  println("---------------------------------------------------")
-  //  println("Rec Test")
-  //  println("---------------------------------------------------")
-  //  recTest
-  //
-  //    println("---------------------------------------------------")
-  //    println("Factorial Test")
-  //    println("---------------------------------------------------")
-  //    factorialTest
-  //
-  //  println("---------------------------------------------------")
-  //  println("Fibonacci Test")
-  //  println("---------------------------------------------------")
-  //  fibonacciTest
+  println("Binary Operation Test")
+  println("---------------------------------------------------")
+  BinaryOperationsTest
+
+  println("---------------------------------------------------")
+  println("If Test")
+  println("---------------------------------------------------")
+  IfTest
+
+  println("---------------------------------------------------")
+  println("Lambda Test")
+  println("---------------------------------------------------")
+  LambdaTest
+
+  println("---------------------------------------------------")
+  println("ValDecl Test")
+  println("---------------------------------------------------")
+  valDeclTest
+
+  println("---------------------------------------------------")
+  println("Apply Test")
+  println("---------------------------------------------------")
+  applyTest
+
+  println("---------------------------------------------------")
+  println("Rec Test")
+  println("---------------------------------------------------")
+  recTest
+
+  println("---------------------------------------------------")
+  println("Factorial Test")
+  println("---------------------------------------------------")
+  factorialTest
+
+  println("---------------------------------------------------")
+  println("Fibonacci Test")
+  println("---------------------------------------------------")
+  fibonacciTest
 
   private def recTest = {
     val ans = Checker.typeOf(ValDecl(
@@ -153,6 +153,11 @@ object Source extends App {
       case e: Exception => println(e)
     }
 
+    val ans3 = Checker.typeOf(If(BinaryOperation(Const(1), Eq, Const(1)), Const(1), Const(0)))
+    println(Checker.typeToExternalForm(ans3.ty, ans3.subst))
+
+    val ans4 = Checker.typeOf(BinaryOperation(BinaryOperation(Const(1), Sub, Const(1)), Add, Const(2)))
+    println(Checker.typeToExternalForm(ans4.ty, ans4.subst))
   }
 
   private def IfTest = {
