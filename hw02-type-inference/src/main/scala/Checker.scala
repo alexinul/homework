@@ -12,21 +12,21 @@ object Checker {
       }
       case BinaryOperation(l, operation, r) => evaluateBinaryOperation(l, operation, r, subst, environment)
       case If(condition, ifThen, elseIf) => evaluateIf(exp, environment, subst, condition, ifThen, elseIf)
-      case Lambda(arguments, body) => evaluateLambda(environment, subst, arguments, body)
+      case Lambda(arguments, body, optReturnType) => evaluateLambda(environment, subst, arguments, body, optReturnType)
       case Apply(lambda, parameters) => evaluateApply(exp, environment, subst, lambda, parameters)
       case ValDecl(variable, body) => evaluateValDecl(environment, subst, variable, body)
     }
   }
 
-  def applyOneSubst(type1: Type, varType: VarType, type2: Type): Type = {
+  private def applyOneSubst(type1: Type, varType: VarType, ty1: Type): Type = {
     type1 match {
       case self@(IntType() | BoolType()) => self
-      case FunctionType(argumentsTypes, resultType) => FunctionType(argumentsTypes.map(argType => applyOneSubst(argType, varType, type2)), applyOneSubst(resultType, varType, type2))
-      case VarType(_) => if (type1 != varType) type2 else type1
+      case FunctionType(argumentsTypes, resultType) => FunctionType(argumentsTypes.map(argType => applyOneSubst(argType, varType, ty1)), applyOneSubst(resultType, varType, ty1))
+      case VarType(_) => if (type1 != varType) ty1 else type1
     }
   }
 
-  def applySubstToType(ty: Type, subst: Map[VarType, Type]): Type = {
+  private def applySubstToType(ty: Type, subst: Map[VarType, Type]): Type = {
     ty match {
       case self@(IntType() | BoolType()) => self
       case FunctionType(argumentsTypes, resultType) => FunctionType(argumentsTypes.map(argType => applySubstToType(argType, subst)), applySubstToType(resultType, subst))
@@ -37,10 +37,10 @@ object Checker {
     }
   }
 
-  def extendSubst(subst: Map[VarType, Type], tvar: VarType, ty: Type): Map[VarType, Type] = if (subst.size == 0) subst ++ Map(tvar -> ty)
+  private def extendSubst(subst: Map[VarType, Type], tvar: VarType, ty: Type): Map[VarType, Type] = if (subst.size == 0) subst ++ Map(tvar -> ty)
   else subst.map { case (k, v) => k -> applyOneSubst(v, tvar, ty) } ++ Map(tvar -> ty)
 
-  def unifier(ty1: Type, ty2: Type, subst: Map[VarType, Type], exp: Expression): Map[VarType, Type] = {
+  private def unifier(ty1: Type, ty2: Type, subst: Map[VarType, Type], exp: Expression): Map[VarType, Type] = {
     val ty11 = applySubstToType(ty1, subst)
     val ty22 = applySubstToType(ty2, subst)
     if (ty11 == ty22) subst
@@ -63,7 +63,7 @@ object Checker {
     }
   }
 
-  def noOccurrence(tvar: VarType, ty: Type): Boolean = {
+  private def noOccurrence(tvar: VarType, ty: Type): Boolean = {
     ty match {
       case IntType() => true
       case BoolType() => true
@@ -81,7 +81,7 @@ object Checker {
     val subst1 = params.foldLeft(subst) { case (m, p) => m ++ unifier(p._2.ty, resultType, p._2.subst, p._1) }
     val ans = typeOf(body, env, subst1)
 
-    new Answer(resultType, ans.subst)
+    Answer(resultType, ans.subst)
   }
 
   private def evaluateApply(exp: Expression, environment: Map[Expression, Type], subst: Map[VarType, Type], lambda: Expression, parameters: Map[Val, Expression]) = {
@@ -92,14 +92,18 @@ object Checker {
 
     val subst1 = unifier(ans.ty, FunctionType(pAns.values.map(a => a.ty).toList, resultType), ans.subst, exp)
 
-    new Answer(resultType, subst1)
+    Answer(resultType, subst1)
   }
 
-  private def evaluateLambda(environment: Map[Expression, Type], subst: Map[VarType, Type], arguments: List[Val], body: Expression) = {
+  private def evaluateLambda(environment: Map[Expression, Type], subst: Map[VarType, Type], arguments: List[Val], body: Expression, optReturnType: Type): Answer = {
     val args = arguments.map { v => v -> freshTvarType.getType() }.toMap
     val ans = typeOf(body, environment ++ args, subst)
+    val ty = FunctionType(args.values.toList, ans.ty)
 
-    new Answer(FunctionType(args.values.toList, ans.ty), ans.subst)
+    if (!optReturnType.isInstanceOf[NoType]) {
+      return Answer(ty, unifier(ans.ty, optReturnType, ans.subst, body))
+    }
+    Answer(ty, ans.subst)
   }
 
   private def evaluateIf(exp: Expression, environment: Map[Expression, Type], subst: Map[VarType, Type], condition: Expression, ifThen: Expression, elseIf: Expression) = {
@@ -127,7 +131,7 @@ object Checker {
     }
   }
 
-  def `oType->type`(otype: Type) = {
+  private def `oType->type`(otype: Type) = {
     otype match {
       case AType(ty) => ty
       case null | NoType() => freshTvarType.getType()
@@ -141,13 +145,13 @@ object Checker {
       case BoolType() => "bool"
       case FunctionType(argumentsTypes, resultType) => "(" + (argumentsTypes.map(argType => typeToExternalForm(argType, subst)).mkString(", ")) + ")" + " -> " + typeToExternalForm(resultType, subst)
       case self@VarType(_) => subst.get(self) match {
-        case Some(value) => typeToExternalForm(value)
+        case Some(value) => typeToExternalForm(value, subst)
         case None => self.sn
       }
     }
   }
 
-  object freshTvarType {
+  private object freshTvarType {
     var counter = 0
 
     def getType(): VarType = {

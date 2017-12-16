@@ -2,47 +2,50 @@ import ast._
 import ast.operation._
 
 object Source extends App {
-  val ansLambdaBO = Checker.typeOf(Lambda(List(Val("n")), Val("n")))
-  println(Checker.typeToExternalForm(ansLambdaBO.ty, ansLambdaBO.subst))
 
-  //  println("Binary Operation Test")
-  //  println("---------------------------------------------------")
-  //  BinaryOperationsTest
-  //
-  //  println("---------------------------------------------------")
-  //  println("If Test")
-  //  println("---------------------------------------------------")
-  //  IfTest
-  //
-  //  println("---------------------------------------------------")
-  //  println("Lambda Test")
-  //  println("---------------------------------------------------")
-  //  LambdaTest
-  //
-  //  println("---------------------------------------------------")
-  //  println("ValDecl Test")
-  //  println("---------------------------------------------------")
-  //  valDeclTest
-  //
-  //  println("---------------------------------------------------")
-  //  println("Apply Test")
-  //  println("---------------------------------------------------")
-  //  applyTest
-  //
-  //  println("---------------------------------------------------")
-  //  println("Rec Test")
-  //  println("---------------------------------------------------")
-  //  recTest
-  //
-  //  println("---------------------------------------------------")
-  //  println("Factorial Test")
-  //  println("---------------------------------------------------")
-  //  factorialTest
-  //
-  //  println("---------------------------------------------------")
-  //  println("Fibonacci Test")
-  //  println("---------------------------------------------------")
-  //  fibonacciTest
+  println("Binary Operation Test")
+  println("---------------------------------------------------")
+  BinaryOperationsTest
+
+  println("---------------------------------------------------")
+  println("If Test")
+  println("---------------------------------------------------")
+  IfTest
+
+  println("---------------------------------------------------")
+  println("Lambda Test")
+  println("---------------------------------------------------")
+  LambdaTest
+
+  println("---------------------------------------------------")
+  println("ValDecl Test")
+  println("---------------------------------------------------")
+  valDeclTest
+
+  println("---------------------------------------------------")
+  println("Apply Test")
+  println("---------------------------------------------------")
+  applyTest
+
+  println("---------------------------------------------------")
+  println("Rec Test")
+  println("---------------------------------------------------")
+  recTest
+
+  println("---------------------------------------------------")
+  println("Factorial Test")
+  println("---------------------------------------------------")
+  factorialTest
+
+  println("---------------------------------------------------")
+  println("Fibonacci Test")
+  println("---------------------------------------------------")
+  fibonacciTest
+
+  println("---------------------------------------------------")
+  println("Optional Type Annotation")
+  println("---------------------------------------------------")
+  typeAnnotation
 
   private def recTest = {
     val ans1 = Checker.typeOf(ValDecl(
@@ -184,5 +187,16 @@ object Source extends App {
 
     val ans4 = Checker.typeOf(If(BinaryOperation(Const(1), Eq, BinaryOperation(Const(1), Add, Const(0))), Const(1), Const(2)))
     println(Checker.typeToExternalForm(ans4.ty, ans4.subst))
+  }
+
+  private def typeAnnotation = {
+    val ansLambdaBO = Checker.typeOf(Lambda(List(Val("n"), Val("m"), Val("o")), If(Val("n"), Val("m"), Val("o")), new IntType))
+    println(Checker.typeToExternalForm(ansLambdaBO.ty, ansLambdaBO.subst))
+
+    val ansLambdaBO1 = Checker.typeOf(Lambda(List(Val("n"), Val("m"), Val("o")), If(Val("n"), Val("m"), Val("o")), new BoolType))
+    println(Checker.typeToExternalForm(ansLambdaBO1.ty, ansLambdaBO1.subst))
+
+    val ansLambdaBO2 = Checker.typeOf(Lambda(List(Val("n"), Val("m"), Val("o")), If(Val("n"), Val("m"), Val("o"))))
+    println(Checker.typeToExternalForm(ansLambdaBO2.ty, ansLambdaBO2.subst))
   }
 }
