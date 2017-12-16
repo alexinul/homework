@@ -1,54 +1,57 @@
-import ast._
-import ast.operation._
+import unionTypes.Checker
+import unionTypes.ast._
+import unionTypes.ast.operation._
 
 object Source extends App {
 
-  val ans2 = unionTypes.Checker.typeOf(unionTypes.ast.If(unionTypes.ast.Bool(true), unionTypes.ast.Const(1), unionTypes.ast.Lambda(List(unionTypes.ast.Val("n")), unionTypes.ast.Val("n"), new unionTypes.ast.IntType)))
-  println(unionTypes.Checker.typeToExternalForm(ans2.ty, ans2.subst))
+  println("Binary Operation Test")
+  println("---------------------------------------------------")
+  BinaryOperationsTest
 
-  //  println("Binary Operation Test")
-  //  println("---------------------------------------------------")
-  //  BinaryOperationsTest
-  //
-  //  println("---------------------------------------------------")
-  //  println("If Test")
-  //  println("---------------------------------------------------")
-  //  IfTest
-  //
-  //  println("---------------------------------------------------")
-  //  println("Lambda Test")
-  //  println("---------------------------------------------------")
-  //  LambdaTest
-  //
-  //  println("---------------------------------------------------")
-  //  println("ValDecl Test")
-  //  println("---------------------------------------------------")
-  //  valDeclTest
-  //
-  //  println("---------------------------------------------------")
-  //  println("Apply Test")
-  //  println("---------------------------------------------------")
-  //  applyTest
-  //
-  //  println("---------------------------------------------------")
-  //  println("Rec Test")
-  //  println("---------------------------------------------------")
-  //  recTest
-  //
-  //  println("---------------------------------------------------")
-  //  println("Factorial Test")
-  //  println("---------------------------------------------------")
-  //  factorialTest
-  //
-  //  println("---------------------------------------------------")
-  //  println("Fibonacci Test")
-  //  println("---------------------------------------------------")
-  //  fibonacciTest
-  //
-  //  println("---------------------------------------------------")
-  //  println("Optional Type Annotation")
-  //  println("---------------------------------------------------")
-  //  typeAnnotation
+  println("---------------------------------------------------")
+  println("If Test")
+  println("---------------------------------------------------")
+  IfTest
+
+  println("---------------------------------------------------")
+  println("Lambda Test")
+  println("---------------------------------------------------")
+  LambdaTest
+
+  println("---------------------------------------------------")
+  println("ValDecl Test")
+  println("---------------------------------------------------")
+  valDeclTest
+
+  println("---------------------------------------------------")
+  println("Apply Test")
+  println("---------------------------------------------------")
+  applyTest
+
+  println("---------------------------------------------------")
+  println("Rec Test")
+  println("---------------------------------------------------")
+  recTest
+
+  println("---------------------------------------------------")
+  println("Factorial Test")
+  println("---------------------------------------------------")
+  factorialTest
+
+  println("---------------------------------------------------")
+  println("Fibonacci Test")
+  println("---------------------------------------------------")
+  fibonacciTest
+
+  println("---------------------------------------------------")
+  println("Optional Type Annotation Test")
+  println("---------------------------------------------------")
+  typeAnnotationTest
+
+  println("---------------------------------------------------")
+  println("Union Types Test")
+  println("---------------------------------------------------")
+  unionTypesTest
 
   private def recTest = {
     val ans1 = Checker.typeOf(ValDecl(
@@ -192,7 +195,7 @@ object Source extends App {
     println(Checker.typeToExternalForm(ans4.ty, ans4.subst))
   }
 
-  private def typeAnnotation = {
+  private def typeAnnotationTest = {
     val ansLambdaBO = Checker.typeOf(Lambda(List(Val("n"), Val("m"), Val("o")), If(Val("n"), Val("m"), Val("o")), new IntType))
     println(Checker.typeToExternalForm(ansLambdaBO.ty, ansLambdaBO.subst))
 
@@ -201,5 +204,26 @@ object Source extends App {
 
     val ansLambdaBO2 = Checker.typeOf(Lambda(List(Val("n"), Val("m"), Val("o")), If(Val("n"), Val("m"), Val("o"))))
     println(Checker.typeToExternalForm(ansLambdaBO2.ty, ansLambdaBO2.subst))
+  }
+
+  private def unionTypesTest = {
+    val ans = Checker.typeOf(If(Bool(true), Bool(false), Lambda(List(Val("n")), Val("n"), new IntType)))
+    println(Checker.typeToExternalForm(ans.ty, ans.subst))
+
+    val ans2 = Checker.typeOf(Lambda(List(Val("x")), If(Bool(true), Bool(false), Lambda(List(Val("n")), Val("n"), new IntType))))
+    println(Checker.typeToExternalForm(ans2.ty, ans2.subst))
+
+    val ans3 = Checker.typeOf(Lambda(List(Val("x")), If(Val("x"), Bool(false), Lambda(List(Val("n")), Val("n"), new IntType))))
+    println(Checker.typeToExternalForm(ans3.ty, ans3.subst))
+
+    val ans4 = Checker.typeOf(Lambda(List(Val("x")), If(Val("x"), Bool(false), Lambda(List(), Val("x")))))
+    println(Checker.typeToExternalForm(ans4.ty, ans4.subst))
+
+    val ans1 = Checker.typeOf(ValDecl(
+      Map(Val("rec") -> Lambda(List(Val("n"), Val("x")), {
+        If(Val("n"), If(Val("x"), If(Bool(true), Const(1), Lambda(List(), Const(2))), Apply(Val("rec"))), Bool(true))
+      })), Apply(Val("rec"), Map(Val("n") -> Bool(true), Val("x") -> Bool(false)))
+    ))
+    println(Checker.typeToExternalForm(ans1.ty, ans1.subst))
   }
 }

@@ -20,17 +20,19 @@ object Checker {
     }
   }
 
-  private def applyOneSubst(type1: Type, varType: VarType, ty1: Type): Type = {
+  private def applyOneSubst(type1: Type, varType: VarType, type2: Type): Type = {
     type1 match {
       case self@(IntType() | BoolType()) => self
-      case FunctionType(argumentsTypes, resultType) => FunctionType(argumentsTypes.map(argType => applyOneSubst(argType, varType, ty1)), applyOneSubst(resultType, varType, ty1))
-      case VarType(_) => if (type1 != varType) ty1 else type1
+      case UnionType(ty1, ty2) => UnionType(applyOneSubst(ty1, varType, type2), applyOneSubst(ty2, varType, type2))
+      case FunctionType(argumentsTypes, resultType) => FunctionType(argumentsTypes.map(argType => applyOneSubst(argType, varType, type2)), applyOneSubst(resultType, varType, type2))
+      case VarType(_) => if (type1 != varType) type2 else type1
     }
   }
 
   private def applySubstToType(ty: Type, subst: Map[VarType, Type]): Type = {
     ty match {
       case self@(IntType() | BoolType()) => self
+      case UnionType(ty1, ty2) => UnionType(applySubstToType(ty1, subst), applySubstToType(ty2, subst))
       case FunctionType(argumentsTypes, resultType) => FunctionType(argumentsTypes.map(argType => applySubstToType(argType, subst)), applySubstToType(resultType, subst))
       case self@VarType(_) => subst.get(self) match {
         case Some(value) => value
@@ -69,6 +71,7 @@ object Checker {
     ty match {
       case IntType() => true
       case BoolType() => true
+      case UnionType(ty1, ty2) => noOccurrence(tvar, ty1) && noOccurrence(tvar, ty2)
       case FunctionType(argumentsTypes, resultType) => argumentsTypes.map(argType => noOccurrence(tvar, argType)).foldLeft(true)(_ && _) && noOccurrence(tvar, resultType)
       case VarType(_) => !(tvar == ty)
     }

@@ -1,7 +1,7 @@
 import ast.{Type, _}
 import ast.operation._
 
-object Checker {
+object Checker1 {
   def typeOf(exp: Expression, environment: Map[Expression, Type] = Map(), subst: Map[VarType, Type] = Map()): Answer = {
     exp match {
       case Const(_) => Answer(new IntType, subst)
