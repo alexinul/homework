@@ -2,45 +2,47 @@ import ast._
 import ast.operation._
 
 object Source extends App {
+  val ansLambdaBO = Checker.typeOf(Lambda(List(Val("n")), Val("n")))
+  println(Checker.typeToExternalForm(ansLambdaBO.ty, ansLambdaBO.subst))
 
-  println("Binary Operation Test")
-  println("---------------------------------------------------")
-  BinaryOperationsTest
-
-  println("---------------------------------------------------")
-  println("If Test")
-  println("---------------------------------------------------")
-  IfTest
-
-  println("---------------------------------------------------")
-  println("Lambda Test")
-  println("---------------------------------------------------")
-  LambdaTest
-
-  println("---------------------------------------------------")
-  println("ValDecl Test")
-  println("---------------------------------------------------")
-  valDeclTest
-
-  println("---------------------------------------------------")
-  println("Apply Test")
-  println("---------------------------------------------------")
-  applyTest
-
-  println("---------------------------------------------------")
-  println("Rec Test")
-  println("---------------------------------------------------")
-  recTest
-
-  println("---------------------------------------------------")
-  println("Factorial Test")
-  println("---------------------------------------------------")
-  factorialTest
-
-  println("---------------------------------------------------")
-  println("Fibonacci Test")
-  println("---------------------------------------------------")
-  fibonacciTest
+  //  println("Binary Operation Test")
+  //  println("---------------------------------------------------")
+  //  BinaryOperationsTest
+  //
+  //  println("---------------------------------------------------")
+  //  println("If Test")
+  //  println("---------------------------------------------------")
+  //  IfTest
+  //
+  //  println("---------------------------------------------------")
+  //  println("Lambda Test")
+  //  println("---------------------------------------------------")
+  //  LambdaTest
+  //
+  //  println("---------------------------------------------------")
+  //  println("ValDecl Test")
+  //  println("---------------------------------------------------")
+  //  valDeclTest
+  //
+  //  println("---------------------------------------------------")
+  //  println("Apply Test")
+  //  println("---------------------------------------------------")
+  //  applyTest
+  //
+  //  println("---------------------------------------------------")
+  //  println("Rec Test")
+  //  println("---------------------------------------------------")
+  //  recTest
+  //
+  //  println("---------------------------------------------------")
+  //  println("Factorial Test")
+  //  println("---------------------------------------------------")
+  //  factorialTest
+  //
+  //  println("---------------------------------------------------")
+  //  println("Fibonacci Test")
+  //  println("---------------------------------------------------")
+  //  fibonacciTest
 
   private def recTest = {
     val ans1 = Checker.typeOf(ValDecl(

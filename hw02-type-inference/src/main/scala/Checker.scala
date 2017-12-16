@@ -18,11 +18,11 @@ object Checker {
     }
   }
 
-  def applyOneSubst(ty0: Type, tvar: VarType, ty1: Type): Type = {
-    ty0 match {
+  def applyOneSubst(type1: Type, varType: VarType, type2: Type): Type = {
+    type1 match {
       case self@(IntType() | BoolType()) => self
-      case FunctionType(argumentsTypes, resultType) => FunctionType(argumentsTypes.map(argType => applyOneSubst(argType, tvar, ty1)), applyOneSubst(resultType, tvar, ty1))
-      case VarType(_) => if (ty0 != tvar) ty1 else ty0
+      case FunctionType(argumentsTypes, resultType) => FunctionType(argumentsTypes.map(argType => applyOneSubst(argType, varType, type2)), applyOneSubst(resultType, varType, type2))
+      case VarType(_) => if (type1 != varType) type2 else type1
     }
   }
 
