@@ -3,49 +3,52 @@ import ast.operation._
 
 object Source extends App {
 
-  println("Binary Operation Test")
-  println("---------------------------------------------------")
-  BinaryOperationsTest
+  val ans2 = unionTypes.Checker.typeOf(unionTypes.ast.If(unionTypes.ast.Bool(true), unionTypes.ast.Const(1), unionTypes.ast.Lambda(List(unionTypes.ast.Val("n")), unionTypes.ast.Val("n"), new unionTypes.ast.IntType)))
+  println(unionTypes.Checker.typeToExternalForm(ans2.ty, ans2.subst))
 
-  println("---------------------------------------------------")
-  println("If Test")
-  println("---------------------------------------------------")
-  IfTest
-
-  println("---------------------------------------------------")
-  println("Lambda Test")
-  println("---------------------------------------------------")
-  LambdaTest
-
-  println("---------------------------------------------------")
-  println("ValDecl Test")
-  println("---------------------------------------------------")
-  valDeclTest
-
-  println("---------------------------------------------------")
-  println("Apply Test")
-  println("---------------------------------------------------")
-  applyTest
-
-  println("---------------------------------------------------")
-  println("Rec Test")
-  println("---------------------------------------------------")
-  recTest
-
-  println("---------------------------------------------------")
-  println("Factorial Test")
-  println("---------------------------------------------------")
-  factorialTest
-
-  println("---------------------------------------------------")
-  println("Fibonacci Test")
-  println("---------------------------------------------------")
-  fibonacciTest
-
-  println("---------------------------------------------------")
-  println("Optional Type Annotation")
-  println("---------------------------------------------------")
-  typeAnnotation
+  //  println("Binary Operation Test")
+  //  println("---------------------------------------------------")
+  //  BinaryOperationsTest
+  //
+  //  println("---------------------------------------------------")
+  //  println("If Test")
+  //  println("---------------------------------------------------")
+  //  IfTest
+  //
+  //  println("---------------------------------------------------")
+  //  println("Lambda Test")
+  //  println("---------------------------------------------------")
+  //  LambdaTest
+  //
+  //  println("---------------------------------------------------")
+  //  println("ValDecl Test")
+  //  println("---------------------------------------------------")
+  //  valDeclTest
+  //
+  //  println("---------------------------------------------------")
+  //  println("Apply Test")
+  //  println("---------------------------------------------------")
+  //  applyTest
+  //
+  //  println("---------------------------------------------------")
+  //  println("Rec Test")
+  //  println("---------------------------------------------------")
+  //  recTest
+  //
+  //  println("---------------------------------------------------")
+  //  println("Factorial Test")
+  //  println("---------------------------------------------------")
+  //  factorialTest
+  //
+  //  println("---------------------------------------------------")
+  //  println("Fibonacci Test")
+  //  println("---------------------------------------------------")
+  //  fibonacciTest
+  //
+  //  println("---------------------------------------------------")
+  //  println("Optional Type Annotation")
+  //  println("---------------------------------------------------")
+  //  typeAnnotation
 
   private def recTest = {
     val ans1 = Checker.typeOf(ValDecl(
