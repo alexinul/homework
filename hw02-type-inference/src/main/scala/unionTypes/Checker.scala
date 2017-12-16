@@ -123,7 +123,7 @@ object Checker {
       case (VarType(_), _) => Answer(ans2.ty, unifier(ans2.ty, ans3.ty, ans3.subst, exp))
       case (_, VarType(_)) => Answer(ans2.ty, unifier(ans2.ty, ans3.ty, ans3.subst, exp))
       case (VarType(_), VarType(_)) => Answer(ans2.ty, unifier(ans2.ty, ans3.ty, ans3.subst, exp))
-      case (_, _) => Answer(new UnionType(ans2.ty, ans3.ty), ans3.subst)
+      case (ty1, ty2) => if (ty1 != ty2) Answer(new UnionType(ans2.ty, ans3.ty), ans3.subst) else Answer(ty2, ans3.subst)
     }
   }
 
