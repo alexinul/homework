@@ -240,5 +240,12 @@ object Source extends App {
 
     val ans6 = Checker.typeOf(Lambda(List(Val("z")), If(Val("z"), Const(1), Val("z"))))
     println(Checker.typeToExternalForm(ans6.ty, ans6.subst))
+
+    val ans7 = Checker.typeOf(ValDecl(
+      Map(Val("rec") -> Lambda(List(), {
+        If(Bool(true), If(Bool(false), Apply(Val("rec")), Bool(true)), Const(1))
+      })), Apply(Val("rec"))
+    ))
+    println(Checker.typeToExternalForm(ans7.ty, ans7.subst))
   }
 }
