@@ -1,6 +1,8 @@
 import ast._
 import ast.operation._
 
+import scala.util.Random
+
 object Checker {
   def typeOf(exp: Expression, environment: Map[Expression, Type] = Map(), subst: Map[VarType, Type] = Map()): Answer = {
     exp match {
@@ -148,17 +150,15 @@ object Checker {
       case FunctionType(argumentsTypes, resultType) => "(" + (argumentsTypes.map(argType => typeToExternalForm(argType, subst)).mkString(", ")) + ")" + " -> " + typeToExternalForm(resultType, subst)
       case self@VarType(_) => subst.get(self) match {
         case Some(value) => typeToExternalForm(value, subst)
-        case None => self.sn
+        case None => "t"
       }
     }
   }
 
   private object freshTvarType {
-    var counter = 0
 
     def getType(): VarType = {
-      counter += 1
-      new VarType(s"t${counter}")
+      new VarType(s"${Random.nextInt}")
     }
   }
 

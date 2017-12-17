@@ -154,6 +154,9 @@ object Source extends App {
 
     val ans6 = Checker.typeOf(Lambda(List(Val("n")), Val("n")))
     println(Checker.typeToExternalForm(ans6.ty, ans6.subst))
+
+    val ans7 = Checker.typeOf(Lambda(List(Val("x"), Val("y")), If(Bool(false), Val("x"), Val("y"))))
+    println(Checker.typeToExternalForm(ans7.ty, ans7.subst))
   }
 
   private def BinaryOperationsTest = {
