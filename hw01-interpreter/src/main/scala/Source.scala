@@ -28,6 +28,7 @@ object Source extends App {
   private def factorialTest = {
     val fact5 = ValDecl(
       Map("fact" -> Lambda(List("n"), {
+
         If(BinaryOperation(Val("n"), Eq, Const(0)),
           Const(1),
           BinaryOperation(Val("n"), Mul, Apply(Val("fact"), Map("n" -> BinaryOperation(Val("n"), Sub, Const(1))))))
