@@ -1,7 +1,7 @@
-import ast.{Type, _}
+import ast._
 import ast.operation._
 
-object Checker1 {
+object Checker {
   def typeOf(exp: Expression, environment: Map[Expression, Type] = Map(), subst: Map[VarType, Type] = Map()): Answer = {
     exp match {
       case Const(_) => Answer(new IntType, subst)
@@ -18,17 +18,19 @@ object Checker1 {
     }
   }
 
-  private def applyOneSubst(type1: Type, varType: VarType, ty1: Type): Type = {
+  private def applyOneSubst(type1: Type, varType: VarType, type2: Type): Type = {
     type1 match {
       case self@(IntType() | BoolType()) => self
-      case FunctionType(argumentsTypes, resultType) => FunctionType(argumentsTypes.map(argType => applyOneSubst(argType, varType, ty1)), applyOneSubst(resultType, varType, ty1))
-      case VarType(_) => if (type1 != varType) ty1 else type1
+      case UnionType(ty1, ty2) => UnionType(applyOneSubst(ty1, varType, type2), applyOneSubst(ty2, varType, type2))
+      case FunctionType(argumentsTypes, resultType) => FunctionType(argumentsTypes.map(argType => applyOneSubst(argType, varType, type2)), applyOneSubst(resultType, varType, type2))
+      case VarType(_) => if (type1 != varType) type2 else type1
     }
   }
 
   private def applySubstToType(ty: Type, subst: Map[VarType, Type]): Type = {
     ty match {
       case self@(IntType() | BoolType()) => self
+      case UnionType(ty1, ty2) => UnionType(applySubstToType(ty1, subst), applySubstToType(ty2, subst))
       case FunctionType(argumentsTypes, resultType) => FunctionType(argumentsTypes.map(argType => applySubstToType(argType, subst)), applySubstToType(resultType, subst))
       case self@VarType(_) => subst.get(self) match {
         case Some(value) => value
@@ -43,30 +45,22 @@ object Checker1 {
   private def unifier(ty1: Type, ty2: Type, subst: Map[VarType, Type], exp: Expression): Map[VarType, Type] = {
     val ty11 = applySubstToType(ty1, subst)
     val ty22 = applySubstToType(ty2, subst)
+
     if (ty11 == ty22) subst
-    else if (ty11.isInstanceOf[VarType]) {
-      ty11 match {
-        case self@VarType(_) => if (noOccurrence(self, ty22)) extendSubst(subst, self, ty22) else throw new RuntimeException("Cannot find type")
-      }
-    } else if (ty22.isInstanceOf[VarType]) {
-      ty22 match {
-        case self@VarType(_) => if (noOccurrence(self, ty11)) extendSubst(subst, self, ty11) else throw new RuntimeException("Cannot find type")
-      }
-    }
-    else if (ty11.isInstanceOf[FunctionType] && ty22.isInstanceOf[FunctionType]) {
+    else
       (ty11, ty22) match {
-        case (FunctionType(argTy1, resTy1), FunctionType(argTy2, resTy2)) =>
-          (argTy1 zip argTy2).foldLeft(subst) { case (s, args) => s ++ unifier(args._1, args._2, s, exp) } ++ unifier(resTy1, resTy2, subst, exp)
+        case (self@VarType(_), _) => if (noOccurrence(self, ty22)) extendSubst(subst, self, ty22) else throw new RuntimeException("Cannot find type")
+        case (_, self@VarType(_)) => if (noOccurrence(self, ty11)) extendSubst(subst, self, ty11) else throw new RuntimeException("Cannot find type")
+        case (FunctionType(argTy1, resTy1), FunctionType(argTy2, resTy2)) => (argTy1 zip argTy2).foldLeft(subst) { case (s, args) => s ++ unifier(args._1, args._2, s, exp) } ++ unifier(resTy1, resTy2, subst, exp)
+        case (_, _) => throw new RuntimeException("Cannot unify type")
       }
-    } else {
-      throw new RuntimeException("Cannot unify type")
-    }
   }
 
   private def noOccurrence(tvar: VarType, ty: Type): Boolean = {
     ty match {
       case IntType() => true
       case BoolType() => true
+      case UnionType(ty1, ty2) => noOccurrence(tvar, ty1) && noOccurrence(tvar, ty2)
       case FunctionType(argumentsTypes, resultType) => argumentsTypes.map(argType => noOccurrence(tvar, argType)).foldLeft(true)(_ && _) && noOccurrence(tvar, resultType)
       case VarType(_) => !(tvar == ty)
     }
@@ -114,8 +108,15 @@ object Checker1 {
     val ans2 = typeOf(ifThen, environment, subst1)
     val ans3 = typeOf(elseIf, environment, ans2.subst)
 
-    Answer(ans2.ty, unifier(ans2.ty, ans3.ty, ans3.subst, exp))
+    val ty1 = applySubstToType(ans2.ty, ans3.subst)
+    val ty2 = applySubstToType(ans3.ty, ans3.subst)
 
+    (ty1, ty2) match {
+      case (VarType(_), _) => Answer(ans2.ty, unifier(ans2.ty, ans3.ty, ans3.subst, exp))
+      case (_, VarType(_)) => Answer(ans2.ty, unifier(ans2.ty, ans3.ty, ans3.subst, exp))
+      case (VarType(_), VarType(_)) => Answer(ans2.ty, unifier(ans2.ty, ans3.ty, ans3.subst, exp))
+      case (_, _) => if (ty1 != ty2) Answer(new UnionType(ans2.ty, ans3.ty), ans3.subst) else Answer(ty2, ans3.subst)
+    }
   }
 
   private def evaluateBinaryOperation(l: Expression, operation: Operation, r: Expression, subst: Map[VarType, Type], environment: Map[Expression, Type]) = {
@@ -143,6 +144,7 @@ object Checker1 {
     ty match {
       case IntType() => "int"
       case BoolType() => "bool"
+      case UnionType(ty1, ty2) => "[" + typeToExternalForm(ty1, subst) + "|" + typeToExternalForm(ty2, subst) + "]"
       case FunctionType(argumentsTypes, resultType) => "(" + (argumentsTypes.map(argType => typeToExternalForm(argType, subst)).mkString(", ")) + ")" + " -> " + typeToExternalForm(resultType, subst)
       case self@VarType(_) => subst.get(self) match {
         case Some(value) => typeToExternalForm(value, subst)

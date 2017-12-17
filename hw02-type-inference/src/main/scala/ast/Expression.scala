@@ -12,6 +12,8 @@ final case class FunctionType(argumentsTypes: List[Type], resultType: Type) exte
 
 final case class VarType(sn: String) extends Type
 
+final case class UnionType(ty1: Type, ty2: Type) extends Type
+
 
 sealed trait OptionalType extends Type
 

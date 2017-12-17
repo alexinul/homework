@@ -1,6 +1,5 @@
-import unionTypes.Checker
-import unionTypes.ast._
-import unionTypes.ast.operation._
+import ast._
+import ast.operation._
 
 object Source extends App {
 
@@ -213,7 +212,7 @@ object Source extends App {
     val ans2 = Checker.typeOf(Lambda(List(Val("x")), If(Bool(true), Bool(false), Lambda(List(Val("n")), Val("n"), new IntType))))
     println(Checker.typeToExternalForm(ans2.ty, ans2.subst))
 
-    val ans3 = Checker.typeOf(Lambda(List(Val("x")), If(Val("x"), Bool(false), Lambda(List(Val("n")), Val("n"), new IntType))))
+    val ans3 = Checker.typeOf(Lambda(List(Val("x")), If(Val("x"), Bool(false), Lambda(List(Val("n")), Val("n")))))
     println(Checker.typeToExternalForm(ans3.ty, ans3.subst))
 
     val ans4 = Checker.typeOf(Lambda(List(Val("x")), If(Val("x"), Bool(false), Lambda(List(), Val("x")))))
@@ -225,5 +224,21 @@ object Source extends App {
       })), Apply(Val("rec"), Map(Val("n") -> Bool(true), Val("x") -> Bool(false)))
     ))
     println(Checker.typeToExternalForm(ans1.ty, ans1.subst))
+
+    val ans5 = Checker.typeOf(
+      Lambda(List(Val("x"), Val("y")),
+        If(Val("x"),
+          If(Val("y"),
+            Lambda(List(Val("z"), Val("a")),
+              If(Val("z"),
+                BinaryOperation(Val("a"), Add, Const(1)),
+                Val("z"))),
+            Lambda(List(Val("b")), Val("b"))),
+          Const(1))
+      ))
+    println(Checker.typeToExternalForm(ans5.ty, ans5.subst))
+
+    val ans6 = Checker.typeOf(Lambda(List(Val("z")), If(Val("z"), Const(1), Val("z"))))
+    println(Checker.typeToExternalForm(ans6.ty, ans6.subst))
   }
 }
