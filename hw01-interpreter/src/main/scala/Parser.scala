@@ -6,7 +6,7 @@ object Parser extends JavaTokenParsers {
 
   def factor: Parser[Expression] = {
     for {
-      t <- expression | value | const | bool
+      t <- const | bool | value | expression
     } yield t
   }
 
@@ -24,22 +24,28 @@ object Parser extends JavaTokenParsers {
 
   def bool: Parser[Bool] = {
     for {
-      boolean <- """""true|false""".r
+      boolean <- literal("true") | literal("false")
     } yield new Bool(boolean)
+  }
+
+  def program: Parser[Expression] = {
+    for {
+      _ <- literal("main")
+      _ <- literal(":")
+      exp <- expression
+    } yield exp
   }
 
   def expression: Parser[Expression] = {
     for {
-      _ <- literal("(")
-      exp <- literal("")
-      _ <- literal(")")
+      exp <- valDecl | lambda | apply | ifOperation | binaryOperation | factor
     } yield exp
   }
 
   def binaryOperation: Parser[BinaryOperation] = {
     for {
       l <- factor
-      op <- """+|-|*|/|<|<=|>|>=|==|!=""".r
+      op <- literal("+") | literal("-") | literal("*") | literal("/") | literal("<") | literal("<=") | literal(">") | literal(">=") | literal("==") | literal("!=")
       r <- factor
     } yield new BinaryOperation(l, op, r)
   }
@@ -47,13 +53,13 @@ object Parser extends JavaTokenParsers {
   def ifOperation: Parser[If] = {
     for {
       _ <- literal("if")
+      _ <- literal("(")
       exp <- expression
-      _ <- literal("{")
+      _ <- literal(")")
+      _ <- literal("then")
       ifThen <- expression
-      _ <- literal("}")
-      _ <- literal("{")
+      _ <- literal("else")
       elseIf <- expression
-      _ <- literal("}")
     } yield If(exp, ifThen, elseIf)
   }
 
@@ -62,6 +68,7 @@ object Parser extends JavaTokenParsers {
       _ <- literal("(")
       args <- rep(lambdaArguments)
       _ <- literal(")")
+      _ <- literal("->")
       _ <- literal("{")
       body <- expression
       _ <- literal("}")
@@ -79,6 +86,7 @@ object Parser extends JavaTokenParsers {
     for {
       _ <- literal("let")
       variables <- valBody
+      _ <- literal("in")
       body <- expression
     } yield ValDecl(variables, body)
   }
@@ -86,6 +94,7 @@ object Parser extends JavaTokenParsers {
   def valBody: Parser[Map[String, Expression]] = {
     for {
       name <- ident
+      _ <- literal("=")
       body <- expression
       _ <- literal(",").?
     } yield Map(name -> body)
@@ -95,8 +104,8 @@ object Parser extends JavaTokenParsers {
     for {
       functionName <- value
       _ <- literal("(")
-      arguments <- valBody
+      arguments <- rep(valBody)
       _ <- literal(")")
-    }
+    } yield Apply(functionName, arguments.reduceLeft(_ ++ _))
   }
 }

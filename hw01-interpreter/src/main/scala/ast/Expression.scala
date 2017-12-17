@@ -25,15 +25,19 @@ final case class Apply(lambda: Expression, parameters: Map[String, Expression]) 
 final case class ValDecl(variable: Map[String, Expression], body: Expression) extends Expression
 
 final case class BinaryOperation(l: Expression, operation: Operation, r: Expression) extends Expression {
-  def this(l: Expression, operation: String, r: Expression) = this(l, convertOperation(operation), r)
-
-  private def convertOperation(operation: String): Operation = {
-    if (operation == "+") {
-      Add
-    } else {
-      Sub
-    }
-  }
+  def this(l: Expression, operation: String, r: Expression) = this(l,
+    operation match {
+      case o if o.equals("+") => Add
+      case o if o.equals("-") => Sub
+      case o if o.equals("/") => Div
+      case o if o.equals("*") => Mul
+      case o if o.equals("<") => LT
+      case o if o.equals("<=") => LTE
+      case o if o.equals(">") => GT
+      case o if o.equals(">=") => GTE
+      case o if o.equals("==") => Eq
+      case o if o.equals("!=") => NEq
+    }, r)
 }
 
 object Expression {
