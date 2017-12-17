@@ -85,10 +85,10 @@ object Parser extends JavaTokenParsers {
   def valDecl: Parser[ValDecl] = {
     for {
       _ <- literal("let")
-      variables <- valBody
+      variables <- rep(valBody)
       _ <- literal("in")
       body <- expression
-    } yield ValDecl(variables, body)
+    } yield ValDecl(variables.reduceLeft(_ ++ _), body)
   }
 
   def valBody: Parser[Map[String, Expression]] = {
