@@ -18,7 +18,7 @@ object ParserTest extends App {
     case _: Parser.NoSuccess => println("Error")
   }
 
-  val ast3 = Parser.parseAll(Parser.program, "main : let a = 5 in a + 1")
+  val ast3 = Parser.parseAll(Parser.program, "main : let a = 5 in {a + 1}")
   ast3 match {
     case Parser.Success(result, _) => println(Interpreter.apply(result))
     case _: Parser.NoSuccess => println("Error")
@@ -30,7 +30,7 @@ object ParserTest extends App {
     case _: Parser.NoSuccess => println("Error")
   }
 
-  val ast5 = Parser.parseAll(Parser.program, "main : let f = (a,b)->{a+b} in f(a=6, b=3)")
+  val ast5 = Parser.parseAll(Parser.program, "main : let f = (a,b)->{a+b} in {f(a=6, b=3) + 1}")
   ast5 match {
     case Parser.Success(result, _) => println(Interpreter.apply(result))
     case x: Parser.Failure => throw new RuntimeException(x.toString())

@@ -6,7 +6,7 @@ object Parser extends JavaTokenParsers {
 
   def factor: Parser[Expression] = {
     for {
-      t <- const | bool | value | expression
+      t <- const | bool | value
     } yield t
   }
 
@@ -38,15 +38,17 @@ object Parser extends JavaTokenParsers {
 
   def expression: Parser[Expression] = {
     for {
-      exp <- valDecl | lambda | apply | ifOperation | binaryOperation | factor
+      exp <- valDecl | ifOperation | binaryOperation | lambda | apply | factor
     } yield exp
   }
 
   def binaryOperation: Parser[BinaryOperation] = {
     for {
-      l <- factor
+      _ <- literal("{")
+      l <- ifOperation | binaryOperation | apply | factor
       op <- literal("+") | literal("-") | literal("*") | literal("/") | literal("<") | literal("<=") | literal(">") | literal(">=") | literal("==") | literal("!=")
-      r <- factor
+      r <- ifOperation | binaryOperation | apply | factor
+      _ <- literal("}")
     } yield new BinaryOperation(l, op, r)
   }
 
@@ -69,9 +71,7 @@ object Parser extends JavaTokenParsers {
       args <- rep(lambdaArguments)
       _ <- literal(")")
       _ <- literal("->")
-      _ <- literal("{")
       body <- expression
-      _ <- literal("}")
     } yield Lambda(args, body)
   }
 
@@ -95,7 +95,7 @@ object Parser extends JavaTokenParsers {
     for {
       name <- ident
       _ <- literal("=")
-      body <- expression
+      body <- apply | expression
       _ <- literal(",").?
     } yield Map(name -> body)
   }
